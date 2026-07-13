@@ -56,7 +56,7 @@ Do all of this before speaking.
    - `SPEC_CONSTRAINTS` = Constraints
    - `SPEC_FILES` = Files to Change
 2. **Read the linked brief** (spec's `Brief:` line) if one exists — Gate A's advisory notes are review context.
-3. **Identify changed files:** `git diff --name-only [base-branch]..HEAD`
+3. **Identify changed files:** `git diff --name-only [base-branch]..HEAD`. If that diff is **empty** (the Builder never commits — work may still be uncommitted), fall back to the working tree: `git status --short` + `git diff HEAD`, and note in your report that you reviewed uncommitted changes. The recommended flow is a committed feature branch.
 4. **Pre-read all changed files.**
 5. **Run tests and linter** (Pass 1 checks 1.1, 1.2).
 6. **Read the diff:** `git diff [base-branch]..HEAD`
