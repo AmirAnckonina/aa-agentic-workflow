@@ -24,29 +24,22 @@ docs/        DESIGN.md · WORKFLOW.md
 
 ## Install
 
-**As a plugin (recommended):** distributed via the private `aa-tools` marketplace (dev phase — not published).
-
-```
-/plugin install agentic-workflow@aa-tools
-```
-
-Updates: bump `version` in `plugin.json`, push, then `/plugin marketplace update aa-tools` + reinstall — the pinned version means releases happen only on version bumps. To publish later, add this repo as an entry in any public marketplace (HTTPS `url` source).
-
-> **Namespacing note:** plugin components are namespaced — skills appear as `agentic-workflow:spec-review`, agents as `agentic-workflow:architect`. Slash usage: `/agentic-workflow:spec-review …`. Doc examples use the short names for readability.
-
-**Dev loop (authoring):** clone and symlink into `~/.claude/` so edits are live without reinstalling:
+**Dev phase (current):** the repo loads in place as a *skills-dir plugin* — one symlink, live edits, no marketplace, no install step:
 
 ```bash
 git clone https://github.com/AmirAnckonina/agentic-workflow ~/repositories/agentic-workflow
-cd ~/.claude
-ln -s ~/repositories/agentic-workflow/agents/*.md agents/
-ln -s ~/repositories/agentic-workflow/skills/{spec-format,approach-review,spec-review,architect-methodology,coding-standards} skills/
-ln -s ~/repositories/agentic-workflow/commands/review-internal.md commands/
+ln -s ~/repositories/agentic-workflow ~/.claude/skills/agentic-workflow
 ```
 
-**Pick one mode** — plugin install and symlinks together create duplicate (namespaced + bare) components. Supersedes the `agentic-workflow` capability in `custom-agentic-tools` (v1); don't install v1 alongside either mode.
+Next session it appears as `agentic-workflow@skills-dir`. Edit the repo → changes are live in the next session. Remove = delete the symlink.
 
-Validate before publishing changes: `claude plugin validate . --strict`
+**Distribution (later, when stable):** add this repo as an entry in any marketplace (HTTPS `url` source recommended) and install `agentic-workflow@<marketplace>`. Version is pinned in `plugin.json`, so releases ship on version bumps. Validate first: `claude plugin validate . --strict`.
+
+**Prerequisite (not a manifest dependency):** the [Superpowers](https://github.com/obra/superpowers) plugin must be installed — agents invoke its TDD/debugging/verification skills and stop with a clear message if missing. Kept out of `plugin.json` `dependencies` deliberately: zero coupling, no cross-marketplace resolution machinery.
+
+> **Namespacing:** plugin components are namespaced — `/agentic-workflow:spec-review`, `@agentic-workflow:architect`. Doc examples use short names for readability.
+
+Supersedes the `agentic-workflow` capability in `custom-agentic-tools` (v1) — don't run both.
 
 ## License
 
