@@ -1,6 +1,7 @@
 {
   "name": "aa",
   "description": "aa — personal Claude Code plugins: SDLC workflow tooling.",
+  "allowCrossMarketplaceDependenciesOn": ["claude-plugins-official"],
   "owner": {
     "name": "Amir Anckonina",
     "url": "https://github.com/AmirAnckonina"
