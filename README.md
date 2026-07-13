@@ -24,17 +24,30 @@ docs/        DESIGN.md · WORKFLOW.md
 
 ## Install
 
-> **Status: pre-packaging (M2 pending).** Plugin manifest + marketplace distribution are the next milestone. Until then, symlink manually into `~/.claude/`:
+**As a plugin (recommended):** this repo is its own marketplace.
+
+```
+/plugin marketplace add AmirAnckonina/agentic-workflow
+/plugin install agentic-workflow@amir-anckonina
+```
+
+Updates: bump lands on `git push`; users pull it with `/plugin marketplace update` (version is pinned in `plugin.json` — releases happen when the version bumps).
+
+> **Namespacing note:** plugin components are namespaced — skills appear as `agentic-workflow:spec-review`, agents as `agentic-workflow:architect`. Slash usage: `/agentic-workflow:spec-review …`. Doc examples use the short names for readability.
+
+**Dev loop (authoring):** clone and symlink into `~/.claude/` so edits are live without reinstalling:
 
 ```bash
-git clone <this-repo> ~/repositories/agentic-workflow
+git clone https://github.com/AmirAnckonina/agentic-workflow ~/repositories/agentic-workflow
 cd ~/.claude
 ln -s ~/repositories/agentic-workflow/agents/*.md agents/
 ln -s ~/repositories/agentic-workflow/skills/{spec-format,approach-review,spec-review,architect-methodology,coding-standards} skills/
 ln -s ~/repositories/agentic-workflow/commands/review-internal.md commands/
 ```
 
-Supersedes the `agentic-workflow` capability in `custom-agentic-tools` (v1) — don't install both at once (name collisions on agents/skills).
+**Pick one mode** — plugin install and symlinks together create duplicate (namespaced + bare) components. Supersedes the `agentic-workflow` capability in `custom-agentic-tools` (v1); don't install v1 alongside either mode.
+
+Validate before publishing changes: `claude plugin validate . --strict`
 
 ## License
 

@@ -1,0 +1,15 @@
+{
+  "name": "amir-anckonina",
+  "description": "Amir Anckonina's Claude Code plugins — SDLC workflow tooling.",
+  "owner": {
+    "name": "Amir Anckonina",
+    "url": "https://github.com/AmirAnckonina"
+  },
+  "plugins": [
+    {
+      "name": "agentic-workflow",
+      "source": "./",
+      "description": "Governance-first SDLC pipeline: Architect → gates → Builder → Reviewer, with spec-as-source-of-truth and enforced approval gates."
+    }
+  ]
+}
