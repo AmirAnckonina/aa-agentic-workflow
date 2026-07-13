@@ -28,7 +28,7 @@ docs/        DESIGN.md · WORKFLOW.md
 
 ```
 /plugin marketplace add AmirAnckonina/agentic-workflow
-/plugin install agentic-workflow@amir-anckonina
+/plugin install agentic-workflow@aa
 ```
 
 Updates: bump lands on `git push`; users pull it with `/plugin marketplace update` (version is pinned in `plugin.json` — releases happen when the version bumps).
