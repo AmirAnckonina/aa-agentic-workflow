@@ -24,14 +24,13 @@ docs/        DESIGN.md · WORKFLOW.md
 
 ## Install
 
-**As a plugin (recommended):** this repo is its own marketplace.
+**As a plugin (recommended):** distributed via the private `aa-tools` marketplace (dev phase — not published).
 
 ```
-/plugin marketplace add AmirAnckonina/agentic-workflow
-/plugin install agentic-workflow@aa
+/plugin install agentic-workflow@aa-tools
 ```
 
-Updates: bump lands on `git push`; users pull it with `/plugin marketplace update` (version is pinned in `plugin.json` — releases happen when the version bumps).
+Updates: bump `version` in `plugin.json`, push, then `/plugin marketplace update aa-tools` + reinstall — the pinned version means releases happen only on version bumps. To publish later, add this repo as an entry in any public marketplace (HTTPS `url` source).
 
 > **Namespacing note:** plugin components are namespaced — skills appear as `agentic-workflow:spec-review`, agents as `agentic-workflow:architect`. Slash usage: `/agentic-workflow:spec-review …`. Doc examples use the short names for readability.
 
