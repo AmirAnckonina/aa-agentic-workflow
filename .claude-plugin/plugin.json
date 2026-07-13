@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "agentic-workflow",
   "displayName": "Agentic Workflow",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Governance-first SDLC pipeline: Architect → gates → Builder → Reviewer, with spec-as-source-of-truth and enforced approval gates. Delegates TDD/debugging to Superpowers and quality review to built-in /code-review.",
   "author": {
     "name": "Amir Anckonina",
