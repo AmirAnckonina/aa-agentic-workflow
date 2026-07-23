@@ -55,6 +55,7 @@ Do all of this before speaking.
    - `SPEC_FAILURE_MODES` = Failure Modes
    - `SPEC_CONSTRAINTS` = Constraints
    - `SPEC_FILES` = Files to Change
+   - `SPEC_REQUIREMENTS` = the `**Requirements:**` line (`R#` IDs + requirements-doc path, or `N/A — inline task`)
 2. **Read the linked brief** (spec's `Brief:` line) if one exists — Gate A's advisory notes are review context.
 3. **Identify changed files:** `git diff --name-only [base-branch]..HEAD`. If that diff is **empty** (the Builder never commits — work may still be uncommitted), fall back to the working tree: `git status --short` + `git diff HEAD`, and note in your report that you reviewed uncommitted changes. The recommended flow is a committed feature branch.
 4. **Pre-read all changed files.**
@@ -107,6 +108,12 @@ Compare changed files against `SPEC_FILES`:
 - Files changed but NOT in spec = potential gold-plating → 🟡 IMPORTANT
 - Files in spec but NOT changed = potential miss → 🔴 CRITICAL
 
+#### 1.7 — Requirements Traceability
+Inspect `SPEC_REQUIREMENTS`:
+- `_N/A — inline task_` → pass (standalone Architect path, no requirements doc). No further check.
+- Otherwise it must be **non-empty** and every listed `R#` must **exist** in the referenced `docs/requirements/<feature>.md`.
+- Missing/empty line on a spec that traces to a requirements doc, or a dangling `R#` = 🟡 IMPORTANT (traceability gap — not a code defect, so never a blocker).
+
 #### Pass 1 Verdict
 
 ```
@@ -119,6 +126,7 @@ Compare changed files against `SPEC_FILES`:
 | 1.4 | All ACs have tests       | ✅/❌  |       |
 | 1.5 | Error cases implemented  | ✅/❌  |       |
 | 1.6 | Scope matches spec       | ✅/❌  |       |
+| 1.7 | Requirements traceable   | ✅/❌  |       |
 
 ### AC Coverage
 | Acceptance Criterion | Test(s) | Verdict |
@@ -127,7 +135,7 @@ Compare changed files against `SPEC_FILES`:
 ```
 
 **Any ❌ in 1.1-1.5** → verdict is **BLOCKER**. Report findings. Do NOT proceed to Pass 2 — quality-reviewing non-compliant code wastes everyone's time.
-**Only 1.6 flagged** → proceed to Pass 2 with a note.
+**Only 1.6 and/or 1.7 flagged** (both IMPORTANT, never blocking) → proceed to Pass 2 with a note.
 
 ---
 

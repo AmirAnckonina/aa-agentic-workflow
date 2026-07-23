@@ -1,7 +1,8 @@
 # Agentic Workflow — User Guide
 
-The SDLC pipeline: intake → discovery → approach → spec → build → review → ship.
-Design rationale lives in [DESIGN.md](DESIGN.md); this is the operating manual.
+The SDLC pipeline: (requirements →) intake → discovery → approach → **decompose** → spec → build → review → ship.
+Spec-driven: the design comes first; a feature is split into task-specs only *after* the brief, and only when it's more than one spec. Requirements are an optional front stage.
+Design rationale lives in [DESIGN.md](DESIGN.md); worked paths in [EXAMPLES.md](EXAMPLES.md); this is the operating manual.
 
 ## The One Principle
 
@@ -20,6 +21,16 @@ Every task starts with a 10-second classification. You always have the final say
 
 **Escalation:** if a T1 task surfaces a design question mid-build, the Builder stops and recommends promotion to T2. If an ordinary T2 surfaces one mid-spec, the Architect promotes to the full brief + Gate A. Nothing designs ad hoc.
 
+## Front stage & decomposition — the spec-driven shape
+
+**Optional front stage.** Starting from fuzzy needs? Run `/requirements` first → a gated EARS requirements doc (`docs/requirements/<f>.md`, `R#` IDs). Already know the work? Skip it, go to `@architect`.
+
+**Decomposition lives inside the Architect (spec-then-tasks).** You do *not* split work up front. Hand a feature to `@architect`; it designs the brief, then decides **one spec or many**. Most features are one spec. A larger one becomes a **Task Map** (`docs/plan/<f>-taskmap.md`) — the Architect's ledger of split specs — produced *after* the design, **ungated for T1/T2** (a T3 coverage audit is optional).
+
+**The decision rule — "Can one spec hold it?"** A spec = one cohesive capability (~5–12 ACs, ≤5 interfaces, ≤3 components). Fits → one spec. Doesn't → the Architect decomposes. Unsure → hand it up anyway; the Architect tells you. **Don't pre-split out of caution.** Worked examples: [EXAMPLES.md](EXAMPLES.md).
+
+**Driving a multi-spec feature (human-in-the-loop, no orchestrator).** With a Task Map, *you* schedule: pick the next `pending` task whose `Depends-on` are `complete` → the Architect writes that task's spec → Gate B → build → review → update the row. **The map coordinates; you schedule** — there is no auto-runner.
+
 ## The Pipeline (T2/T3)
 
 ```
@@ -28,7 +39,9 @@ Every task starts with a 10-second classification. You always have the final say
                     T3 / open-design T2: @architect → docs/briefs/<topic>.md   [Draft]
       ⛩ Gate A: /approach-review — challenge the HOW on one page (artifact briefs only)
                     PASS → Approach-Approved · RETHINK → revise brief
-3. FULL SPEC        @architect → docs/specs/<topic>.md           [Draft, links brief/waiver]
+2.5 DECOMPOSE       @architect: one spec or many? multi-spec → docs/plan/<topic>-taskmap.md
+                    (ungated T1/T2 · T3 coverage audit optional · specs written just-in-time)
+3. FULL SPEC        @architect → docs/specs/<topic>.md           [Draft, links brief + R# reqs]
       ⛩ Gate B: /spec-review — detail audits: lite = 1 auditor (T2) · panel = 5 (T3)
                     N/A sections skip their perspective · Approved · Blocking → revise spec
 4. BUILD            @builder — starts ONLY on Status: Approved
@@ -140,7 +153,8 @@ Same skeleton, full rigor — differences only:
 
 | I want to… | Do |
 |---|---|
-| Design a feature | `@architect` (or `claude --agent architect`) |
+| Turn a raw need into structured requirements | `/requirements` |
+| Design a feature (Architect splits it into task-specs if needed) | `@architect` (or `claude --agent architect`) |
 | Challenge an approach | `/approach-review` on the brief |
 | Audit a spec | `/spec-review` on the spec |
 | Implement an Approved spec | `@builder` |

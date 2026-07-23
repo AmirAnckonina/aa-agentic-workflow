@@ -164,10 +164,10 @@ agentic-workflow/
 - **Claude Code ≥ current** — nested subagents (Reviewer), agent `skills:` preloading, hooks.
 - `jq` — write-guard hook (fails open if absent, as in v1).
 
-## 12. Future Slots (reserved, not designed)
+## 12. Future Slots
 
-- **PRD stage** — product altitude (what/why/success metrics), above Discovery; its approval will absorb the "is this the right thing?" question, further narrowing approach-review to purely technical challenge.
-- **Brainstorm-as-artifact** — if intent summaries prove worth persisting, Discovery gains an artifact + optional gate; today it stays a chat-level step.
+- ~~**PRD stage**~~ — **implemented in v0.5.0** (§15): the optional `requirements-composition` front stage (`/requirements`, EARS + `R#`) supplies the product what/why; the Architect owns design and — spec-then-tasks — decomposition.
+- **Brainstorm-as-artifact** — partly addressed: `/requirements` rents `superpowers:brainstorming` and can structure an existing brainstorming design doc into the Requirements doc. A standalone persisted intent-summary artifact remains unreserved.
 
 ## 13. Migration Plan
 
@@ -186,3 +186,17 @@ agentic-workflow/
 3. ~~Approach Brief format~~ — **Resolved at M1:** adopted as proposed into `spec-format` (+ `Tier:` line; Options Considered requires ≥1 real alternative).
 4. ~~`build-report` skill~~ — **Resolved at M1: folded into the Builder's output protocol** as a compact Build Report whose AC → Test Map feeds Reviewer Pass 1.4 (trust-but-verify). Standalone skill dropped.
 5. **`coding-standards`** — carried into this repo verbatim (agents preload it; a self-contained plugin must carry what it preloads). Future edits happen here, not in `custom-agentic-tools`.
+
+## 15. v0.5.0 — Spec-Driven Front Stage + In-Architect Decomposition (Model A)
+
+**Problem.** The pipeline governed single-task SDLC well but had no altitude above one spec: no way to compose raw needs into structured requirements, and no explicit path for a feature bigger than one spec. In practice this made "am I handing the Architect one task or many?" ambiguous.
+
+**Research grounding.** Three passes over Spec Kit, Kiro, OpenSpec, Taskmaster, BMAD, and Anthropic guidance found unanimous convergence on **spec-then-tasks**: a *feature-level* design comes first, and tasks are **derived from it afterward** by a **cheap step run by the same agent** (a separate role/gate only earns its keep at team scale). One spec = many tasks; a task ≈ one independently testable unit. For solo/fast work the consensus is **keep the artifact, drop the gate** (gate only system-level work). An earlier draft (v0.4.0, unmerged) built the inverse — a gated `/decompose` front stage producing one-spec-per-task ("Model B") — the one model no tool uses; it was rejected.
+
+**Decisions (consistent with Principles §3):**
+1. **Optional requirements front stage.** `requirements-composition` (`/requirements`): raw need → gated EARS doc with `R#` IDs. Rents `superpowers:brainstorming` for the interview (superpowers ships no PRD skill). À la carte — the fast single-task path pays nothing.
+2. **Decomposition lives inside the Architect, downstream of the brief.** It is the existing `spec-format` "split the spec" decision made explicit and given a ledger (the Task Map). Method in the preloaded `decomposition` skill; the agent gains one short beat (step 3.5) — the Architect's surface stays two modes + a reasoning toolkit, not a new mode or a 6th lens.
+3. **Ungated for T1/T2; T3 coverage audit optional.** The approach was already challenged at Gate A; the split is a derivative. Avoids the "waterfall in markdown" failure mode the research flags.
+4. **Specs written just-in-time** (spec durable, context disposable); the Architect hands the Builder one spec at a time.
+5. **Traceability spine** — `R#` → Task Map `Requirements` column → spec `**Requirements:**` line → Builder AC→Test map → Reviewer Pass-1 check 1.7 (IMPORTANT, never blocking).
+6. **No orchestrator (retained).** The Task Map + the existing per-task flow are the whole loop; the human schedules.

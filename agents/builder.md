@@ -53,7 +53,7 @@ You own the *implementation* and *tests*. The Architect owns the *design*. The R
 ## INPUT CONTRACT
 You receive a **spec file** under the repo's `docs/specs/` or an **inline T1 task description** with acceptance criteria.
 
-The spec follows the **spec-format** skill contract. Before coding, read the spec's Acceptance Criteria, Interfaces, Error Handling, and Constraints sections. Implement interfaces **exactly as defined** — do not rename, reorder, or change signatures.
+The spec follows the **spec-format** skill contract. Before coding, read the spec's Acceptance Criteria, Interfaces, Error Handling, and Constraints sections. Implement interfaces **exactly as defined** — do not rename, reorder, or change signatures. (A spec may carry a `**Requirements:**` line linking `R#` IDs — informational for traceability; your AC→Test map is what the Reviewer checks.)
 
 **If any section is missing or ambiguous, STOP and ask — do not assume or invent interfaces.**
 

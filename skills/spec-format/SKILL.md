@@ -1,6 +1,6 @@
 ---
 name: spec-format
-description: "The pipeline's artifact contract: Approach Brief and Spec formats, lifecycle states (Brief: Draft → Approach-Approved; Spec: Draft → Approved), and validation rules. Shared by Architect (produces), Builder (implements against), and Reviewer (validates against)."
+description: "The pipeline's artifact contract: Requirements doc, Approach Brief, Task Map, and Spec formats, their lifecycle states and validation rules. Shared by requirements-composition (front stage), the Architect (produces brief/task-map/specs), the Builder (implements against), and the Reviewer (validates against)."
 user-invocable: false
 ---
 
@@ -38,6 +38,70 @@ Spec:            Draft ──→ Detail Audit ──→ Approved
 When a gate sends an artifact back to `Draft`, the Architect revises and the cycle restarts **from that gate**, not from scratch. Prior review rounds are preserved in the artifact.
 
 **The `Status:` field is the single source of truth.** Each gate sets it when it starts and when it verdicts. The Builder checks the spec's status — if not `Approved`, stop.
+
+---
+
+## Requirements & Task Map Artifacts (optional — bracket the brief/spec)
+
+Two more artifacts sit around the brief/spec. Both are optional — a known single task uses neither. `spec-format` owns their *format*; the *method* lives elsewhere (`requirements-composition` for requirements; the Architect-preloaded `decomposition` skill for the task map).
+
+- **Requirements doc** — an optional **front stage** (`/requirements`), produced *before* any design: what/why in EARS with `R#` IDs.
+- **Task Map** — produced by the **Architect**, *after* the brief, and **only when a feature is more than one spec** (spec-then-tasks — the design comes first, tasks derive from it). It is the Architect's ledger of the split specs. **Ungated for T1/T2** (reviewed inline; its lifecycle rides the brief's Gate A); an optional read-only coverage audit runs for T3 only.
+
+### Requirements Doc Format
+
+Location: `docs/requirements/<feature>.md`. Lifecycle: `Draft → Approved` — **Approved only when no `[NEEDS CLARIFICATION]` marker remains and the user approves.**
+
+```markdown
+# <Feature> — Requirements
+
+**Status:** Draft | Approved
+
+## User Stories
+- As a <role>, I want <capability>, so that <benefit>.
+
+## Acceptance Criteria (EARS)
+<!-- Each criterion carries a stable R# ID and uses EARS syntax.
+     Templates: requirements-composition/references/ears.md -->
+- **R1** — WHEN <trigger>, THE SYSTEM SHALL <response>.
+- **R2** — WHILE <precondition>, THE SYSTEM SHALL <response>.
+- **R3** — IF <unwanted trigger>, THEN THE SYSTEM SHALL <response>.
+
+## Success Metrics
+[How we know it worked — measurable]
+
+## Out of Scope
+[Explicitly not this round]
+
+## Open Questions
+<!-- Each [NEEDS CLARIFICATION] blocks Approval until resolved -->
+- [NEEDS CLARIFICATION] <question>
+```
+
+**Rules:** WHAT/WHY only — no tech stack, interfaces, or file names (that's the Architect's job downstream). `R#` IDs are stable and never reused. A criterion you can't write a pass/fail test against isn't done.
+
+### Task Map Format
+
+Location: `docs/plan/<feature>-taskmap.md`. Produced by the Architect from the brief when the feature is multi-spec. Ungated for T1/T2; optional T3 coverage audit.
+
+```markdown
+# <Feature> — Task Map
+
+**Status:** Draft | Approved
+**Brief:** docs/briefs/<feature>.md
+**Requirements:** docs/requirements/<feature>.md  (or _None_)
+
+| Task | Title | Tier | Requirements | Depends-on | [P] | Status | Spec | Commit | Verdict |
+|------|-------|------|--------------|-----------|-----|--------|------|--------|---------|
+| T01  | …     | T2   | R1, R2       | —         | P   | pending | —   | —      | —       |
+| T02  | …     | T1   | R3           | T01       |     | pending | —   | —      | —       |
+
+## Coverage Audit
+<!-- T3 only: populated by the Architect's read-only auditor. Do not edit manually. -->
+_Not audited (T1/T2) | Not audited yet (T3)_
+```
+
+**Columns:** `Requirements` = the `R#`s this task satisfies (the traceability spine). `Depends-on` = task IDs that must be `complete` first. `[P]` = parallel-safe (no shared files, no dependency). `Spec`/`Commit`/`Verdict` fill in as the task moves through the pipeline. Status values: `pending → in_progress → review → complete | blocked`.
 
 ---
 
@@ -91,6 +155,7 @@ Every specification MUST contain these sections. The Builder implements against 
 
 **Status:** Draft | Detail Audit | Approved
 **Brief:** docs/briefs/<topic>.md (Approach-Approved) | _Inline — Gate A waived: [reason]_
+**Requirements:** R1, R3 (docs/requirements/<feature>.md) | _N/A — inline task_
 
 ## Overview
 [1-2 paragraphs: what this is and why]
@@ -144,6 +209,8 @@ Do NOT include implementation code — just what and where.]
 ```
 
 Strategic/approach concerns live in the **brief's** `## Approach Review` section — the spec has no strategic-review section. Gate B auditors read the linked brief to know what was already challenged.
+
+**Requirements traceability:** the `**Requirements:**` line lists the `R#` IDs this spec satisfies — the link back up the chain requirement → task → spec. When the feature came from a Task Map, copy the `R#`s from the task's row; when it came from a requirements doc directly, list the `R#`s the spec covers. Individual acceptance criteria may annotate their source as `(R#)`. When the spec originates from a lone task with no requirements doc (the standalone Architect path), the line reads `_N/A — inline task_`. The Reviewer checks this line in Pass 1.
 
 ---
 
