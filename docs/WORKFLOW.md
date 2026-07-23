@@ -42,12 +42,12 @@ The pipeline scales cost to risk — spend the rigor where it's warranted, not e
 | The spec is… | Gate B |
 |---|---|
 | Trivial/mechanical (no new logic, no external input, no contract change) | **Skip** — mark Approved directly (recorded). Rare — usually T0/T1 anyway. |
-| Ordinary T2 (the default) | **Lite** — one Sonnet auditor, **focused** to the 2–3 perspectives that matter (Completeness + Scope always; Security / Scalability / API Design only if the surface triggers them) |
+| Ordinary T2 (the default) | **Lite** — one **Opus** auditor, **focused** to the 2–3 perspectives that matter (Completeness + Scope always; Security / Scalability / API Design only if the surface triggers them) |
 | T3, or a T2 touching **auth, migration, external API, or an irreversible change** | **Panel** — 5 Opus auditors. A lite auditor auto-escalates here if it smells real risk. |
 
 **Don't over-tier or over-split.** Most everyday work is one T2-fast spec. Running T3 rigor on T2 work, or decomposing what one spec could hold, is the biggest self-inflicted cost. Keep the *"can one spec hold it?"* rule.
 
-**Model tiering (built in).** Mechanical stages run on **Sonnet** — Reviewer, lite Gate B, `/requirements`; design-critical stages stay **Opus** — Architect, Gate A, Gate B panel. Toggle **`/fast`** (a Claude Code session feature — faster Opus output, same model) for design-heavy sessions.
+**Model tiering (built in).** Mechanical stages run on **Sonnet** — Reviewer, `/requirements`; design-critical stages stay **Opus** — Architect, Gate A, and **Gate B at both tiers** (it's the quality moat, so lite keeps full Opus depth — it's cheaper only by *breadth*, not model strength). Toggle **`/fast`** (a Claude Code session feature — faster Opus output, same model) for design-heavy sessions.
 
 ## The Pipeline (T2/T3)
 

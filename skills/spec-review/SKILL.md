@@ -67,7 +67,7 @@ Before reviewing, gather context:
 | Mode | When | Shape |
 |---|---|---|
 | **Skip** | trivial/mechanical spec — no new logic branches, no external input, no contract change (record the reason) | mark all Review Notes `⏭️ Skipped`, Status → Approved directly |
-| **Lite** | ordinary T2 (default) | **One Sonnet** subagent runs the **focused** perspective set (below) in a single pass |
+| **Lite** | ordinary T2 (default) | **One Opus** subagent runs the **focused** perspective set (below) in a single pass |
 | **Panel** | T3 (always) · a T2 touching **auth/security, data migration, external API contract, or an irreversible/high-blast-radius change** · or on escalation | 5 independent parallel **Opus** subagents |
 
 Both modes dispatch **fresh-context subagents** — the auditor never inherits the Architect's (or your) reasoning; clean eyes are non-negotiable in either mode. The user can always demand panel.
@@ -90,13 +90,13 @@ Completeness and Scope always run — they are the audits that catch wrongly-N/A
 
 ### Lite mode dispatch (T2 default) — focused
 
-Launch **one** subagent with `model: "sonnet"`, receiving: the spec path, the brief path (when one exists), and the reference-checklist paths of the **focused perspective set** — not a blanket sweep:
+Launch **one** subagent with `model: "opus"`, receiving: the spec path, the brief path (when one exists), and the reference-checklist paths of the **focused perspective set** — not a blanket sweep:
 - **Always run Completeness + Scope** — they catch wrongly-`N/A`'d sections and scope creep.
 - **Add a risk perspective only when the spec's surface triggers it:** Security (external input / auth / secrets), Scalability (new runtime behavior under load), API Design (new or changed API contract).
 
-Name the selection and why (*"running Completeness, Scope, Security — the spec adds an auth-checked endpoint"*). Instructions: apply each selected checklist, perform the Step 3 cross-perspective checks, and return findings **per perspective** as in panel mode (so the Review Notes table fills identically). Announce: *"Gate B mode: lite (T2, sonnet) — [N] focused perspectives: [list]."*
+Name the selection and why (*"running Completeness, Scope, Security — the spec adds an auth-checked endpoint"*). Instructions: apply each selected checklist, perform the Step 3 cross-perspective checks, and return findings **per perspective** as in panel mode (so the Review Notes table fills identically). Announce: *"Gate B mode: lite (T2) — [N] focused perspectives: [list]."*
 
-The **lite → panel escalation guardrail still holds**: if this Sonnet auditor finds a blocking Security or Scalability issue (or judges the spec riskier than its tier), it recommends re-running the **Opus panel** — so depth is never lost, only deferred to where it's warranted.
+Lite runs on **Opus** — Gate B is the quality moat, so its auditor keeps full reasoning depth at both tiers; the lite/panel difference is *breadth* (focused set vs all 5, one auditor vs five), not model strength. The **lite → panel escalation guardrail still holds**: if the auditor finds a blocking Security or Scalability issue (or judges the spec riskier than its tier), it recommends re-running the full **panel**.
 
 ### Panel mode dispatch (T3; T2 on request/escalation)
 
