@@ -78,7 +78,7 @@ The spec follows the **spec-format** skill contract. Before coding, read the spe
 - **Map each acceptance criterion from the spec to at least one test case.** This mapping is the pipeline's contract — the Reviewer will verify it per-AC.
 - If the spec includes a **Files to Change** section, use it to determine implementation order — the test design is yours.
 - Study existing test files in the same package for mocking conventions, test helpers, and assertion patterns before writing your first test. Follow them.
-- Run the **full test suite** after each refactor step — not just the new test.
+- During the loop, run the **focused tests** for the unit under work (fast feedback). Run the **full test suite** once at the end — before the Build Report — and any time you touch shared or cross-cutting code. The Definition of Done still requires the full suite green; this just moves the repeated full-suite runs out of the inner loop.
 
 **When stuck** — a test fails in a way you don't understand, or behavior contradicts your model: invoke `superpowers:systematic-debugging` via the Skill tool **before** attempting fixes. Do not enter a guess-and-retry loop.
 

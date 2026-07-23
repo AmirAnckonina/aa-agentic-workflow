@@ -1,7 +1,7 @@
 ---
 description: "Optional front stage — compose raw needs into a structured, gated Requirements doc (user stories + EARS acceptance criteria with R# IDs). Standalone entry to the pipeline; output feeds @architect."
 argument-hint: "[the raw need, or a path to notes]"
-model: opus
+model: sonnet
 ---
 
 # Compose Requirements

@@ -31,6 +31,24 @@ Every task starts with a 10-second classification. You always have the final say
 
 **Driving a multi-spec feature (human-in-the-loop, no orchestrator).** With a Task Map, *you* schedule: pick the next `pending` task whose `Depends-on` are `complete` → the Architect writes that task's spec → Gate B → build → review → update the row. **The map coordinates; you schedule** — there is no auto-runner.
 
+**Parallelize `[P]` tasks.** Tasks marked `[P]` share no files and have no dependency between them — build them **concurrently in separate git worktrees** (`superpowers:using-git-worktrees` + `superpowers:dispatching-parallel-agents`), then review each on its own. On a feature with 2–3 independent specs this roughly **halves** wall-clock; each still passes its own Gate B + review, so quality holds.
+
+## Keeping it paced (speed without losing rigor)
+
+The pipeline scales cost to risk — spend the rigor where it's warranted, not everywhere.
+
+**Gate B — when to run, when not:**
+
+| The spec is… | Gate B |
+|---|---|
+| Trivial/mechanical (no new logic, no external input, no contract change) | **Skip** — mark Approved directly (recorded). Rare — usually T0/T1 anyway. |
+| Ordinary T2 (the default) | **Lite** — one Sonnet auditor, **focused** to the 2–3 perspectives that matter (Completeness + Scope always; Security / Scalability / API Design only if the surface triggers them) |
+| T3, or a T2 touching **auth, migration, external API, or an irreversible change** | **Panel** — 5 Opus auditors. A lite auditor auto-escalates here if it smells real risk. |
+
+**Don't over-tier or over-split.** Most everyday work is one T2-fast spec. Running T3 rigor on T2 work, or decomposing what one spec could hold, is the biggest self-inflicted cost. Keep the *"can one spec hold it?"* rule.
+
+**Model tiering (built in).** Mechanical stages run on **Sonnet** — Reviewer, lite Gate B, `/requirements`; design-critical stages stay **Opus** — Architect, Gate A, Gate B panel. Toggle **`/fast`** (a Claude Code session feature — faster Opus output, same model) for design-heavy sessions.
+
 ## The Pipeline (T2/T3)
 
 ```

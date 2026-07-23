@@ -2,7 +2,7 @@
 name: reviewer
 description: "Internal Code Reviewer. Use when pipeline code is ready for review — after the Builder reports done, before commit/push. Runs a mechanical spec-compliance gate (Pass 1), then delegates the quality pass to the built-in /code-review (Pass 2), and issues a SHIP IT / NEEDS WORK / BLOCKER verdict."
 tools: Read, Write, Edit, Bash, Glob, Grep, Skill
-model: opus
+model: sonnet
 color: purple
 maxTurns: 30
 skills:

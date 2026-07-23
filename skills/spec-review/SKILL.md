@@ -66,8 +66,9 @@ Before reviewing, gather context:
 
 | Mode | When | Shape |
 |---|---|---|
-| **Lite** | T2 (default) | **One** Opus subagent applies all applicable checklists in a single pass |
-| **Panel** | T3 (always) · T2 on user request or escalation | 5 independent parallel Opus subagents (current full form) |
+| **Skip** | trivial/mechanical spec — no new logic branches, no external input, no contract change (record the reason) | mark all Review Notes `⏭️ Skipped`, Status → Approved directly |
+| **Lite** | ordinary T2 (default) | **One Sonnet** subagent runs the **focused** perspective set (below) in a single pass |
+| **Panel** | T3 (always) · a T2 touching **auth/security, data migration, external API contract, or an irreversible/high-blast-radius change** · or on escalation | 5 independent parallel **Opus** subagents |
 
 Both modes dispatch **fresh-context subagents** — the auditor never inherits the Architect's (or your) reasoning; clean eyes are non-negotiable in either mode. The user can always demand panel.
 
@@ -87,9 +88,15 @@ Map each perspective to its target spec sections. If a perspective's target sect
 
 Completeness and Scope always run — they are the audits that catch wrongly-N/A'd sections.
 
-### Lite mode dispatch (T2 default)
+### Lite mode dispatch (T2 default) — focused
 
-Launch **one** subagent with `model: "opus"`, receiving: the spec path, the brief path (when one exists), and the reference-checklist paths of **every applicable perspective**. Instructions: apply each checklist in turn, then perform the Step 3 cross-perspective checks itself, and return findings **per perspective** in the same format as panel mode (so the Review Notes table fills identically). Announce: *"Gate B mode: lite (T2) — 1 auditor, [N] perspectives."*
+Launch **one** subagent with `model: "sonnet"`, receiving: the spec path, the brief path (when one exists), and the reference-checklist paths of the **focused perspective set** — not a blanket sweep:
+- **Always run Completeness + Scope** — they catch wrongly-`N/A`'d sections and scope creep.
+- **Add a risk perspective only when the spec's surface triggers it:** Security (external input / auth / secrets), Scalability (new runtime behavior under load), API Design (new or changed API contract).
+
+Name the selection and why (*"running Completeness, Scope, Security — the spec adds an auth-checked endpoint"*). Instructions: apply each selected checklist, perform the Step 3 cross-perspective checks, and return findings **per perspective** as in panel mode (so the Review Notes table fills identically). Announce: *"Gate B mode: lite (T2, sonnet) — [N] focused perspectives: [list]."*
+
+The **lite → panel escalation guardrail still holds**: if this Sonnet auditor finds a blocking Security or Scalability issue (or judges the spec riskier than its tier), it recommends re-running the **Opus panel** — so depth is never lost, only deferred to where it's warranted.
 
 ### Panel mode dispatch (T3; T2 on request/escalation)
 
