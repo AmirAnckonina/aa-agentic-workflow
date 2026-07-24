@@ -49,6 +49,8 @@ Write `docs/plan/<feature>-taskmap.md` per the **Task Map format** in `spec-form
 
 Order by dependency (models → services → endpoints; independent tasks in the same "wave" are `[P]`). Let the design draw the seams: Lens-1 service boundaries and Lens-4 cohesion from the brief tell you where tasks split.
 
+The Task Map is the **durable ledger**. The human's driving session mirrors its rows into the native to-do board for live tracking (`docs/WORKFLOW.md` → *Track it on the native board*) — that board is the driver's, not yours; you own the map file.
+
 ## Step 3: Right-weight check (ungated for T1/T2)
 
 Present the Task Map top-down and refine it inline with the user. **Do not gate it** for ordinary work — review, adjust, proceed. The design was already challenged at Gate A; the split is a derivative, not a new decision.

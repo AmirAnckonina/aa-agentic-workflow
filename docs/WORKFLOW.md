@@ -8,18 +8,22 @@ Design rationale lives in [DESIGN.md](DESIGN.md); worked paths in [EXAMPLES.md](
 
 **Own decisions, rent techniques.** This workflow owns *governance* — artifacts, gates, the status lifecycle, role boundaries. Everything generic is delegated: TDD/debugging/verification discipline to the [Superpowers](https://github.com/obra/superpowers) plugin (required dependency), generic quality review to the built-in `/code-review`.
 
-## Routing: pick the tier first
+## Routing: two default paths (the pipeline proposes — you confirm)
 
-Every task starts with a 10-second classification. You always have the final say.
+You don't classify up front. Hand the work over; the **Architect proposes** one of two defaults in its Step 1, and you confirm or override. Two paths cover almost everything:
 
-| Tier | Signal | Process |
+| Default | When | Process |
 |---|---|---|
-| **T0 — trivial** | typo, config tweak, no behavior change | Direct chat. No pipeline. |
-| **T1 — bounded** | clear ACs, ≲3 files, no design questions | `@builder` directly (T1 mode) + TDD + `/code-review`. No spec. |
-| **T2 — feature** | new behavior, design choices, single service | Full pipeline, **fast track default**: inline chat brief (Gate A waived + recorded) · Gate B **lite** (1 auditor) · `/code-review` medium. |
-| **T3 — system** | cross-service, migrations, new infra, irreversible | Full pipeline, full rigor: brief artifact + Gate A **mandatory** · Gate B **panel** (5 auditors) · `/code-review` high. |
+| **T2-fast** — the 90% path | new behavior, design choices, single service | inline chat brief (Gate A waived + recorded) · Gate B **lite** (1 auditor) · `/code-review` medium |
+| **T3-full** | cross-service, migrations, new infra, irreversible | brief artifact + Gate A **mandatory** · Gate B **panel** (5 auditors) · `/code-review` high |
 
-**Escalation:** if a T1 task surfaces a design question mid-build, the Builder stops and recommends promotion to T2. If an ordinary T2 surfaces one mid-spec, the Architect promotes to the full brief + Gate A. Nothing designs ad hoc.
+Everything below is an **escalation the pipeline proposes — never a knob you pre-select**:
+
+- **Below T2 (the agent tells you).** A typo/config touch (**T0**) needs no pipeline — direct chat. A bounded ≲3-file task with clear ACs (**T1**) goes straight to `@builder` (TDD + `/code-review`, no spec). Hand either to the Architect and it says so and points you to the direct path.
+- **Mid-flight promotion.** A T1 that surfaces a design question → the Builder stops and recommends T2. An ordinary T2 that surfaces one mid-spec → the Architect promotes to full brief + Gate A. **Nothing designs ad hoc.**
+- **Gate-B breadth.** Lite (1 auditor) by default; the auditor **auto-escalates to panel** (5) on real risk (auth, migration, external API, irreversible). Force it with *"panel mode"*, or waive it with *"skip Gate B"* (trivial changes only).
+
+The detailed knobs behind these defaults live in [Keeping it paced](#keeping-it-paced-speed-without-losing-rigor) — reach for them only when you want to override what the pipeline proposed.
 
 ## Front stage & decomposition — the spec-driven shape
 
@@ -30,6 +34,8 @@ Every task starts with a 10-second classification. You always have the final say
 **The decision rule — "Can one spec hold it?"** A spec = one cohesive capability (~5–12 ACs, ≤5 interfaces, ≤3 components). Fits → one spec. Doesn't → the Architect decomposes. Unsure → hand it up anyway; the Architect tells you. **Don't pre-split out of caution.** Worked examples: [EXAMPLES.md](EXAMPLES.md).
 
 **Driving a multi-spec feature (human-in-the-loop, no orchestrator).** With a Task Map, *you* schedule: pick the next `pending` task whose `Depends-on` are `complete` → the Architect writes that task's spec → Gate B → build → review → update the row. **The map coordinates; you schedule** — there is no auto-runner.
+
+**Track it on the native board.** In your driving session, mirror the Task Map rows into the **native to-do list** (one to-do per task) for a live status board. Roles are split: the markdown map is the **durable ledger** (survives context resets, carries `R#`/`Depends-on`/`[P]`), the native board is the **disposable live view** of what's done / in-flight / next. Seed it from the map when the map is written; move a to-do to `in_progress` when you schedule its task and `completed` after its review passes — updating the map row in the same beat. The board **tracks; it never schedules or auto-runs** — you still pick the next task.
 
 **Parallelize `[P]` tasks.** Tasks marked `[P]` share no files and have no dependency between them — build them **concurrently in separate git worktrees** (`superpowers:using-git-worktrees` + `superpowers:dispatching-parallel-agents`), then review each on its own. On a feature with 2–3 independent specs this roughly **halves** wall-clock; each still passes its own Gate B + review, so quality holds.
 

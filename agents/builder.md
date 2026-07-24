@@ -10,6 +10,41 @@ memory: project
 skills:
   - spec-format
   - coding-standards
+hooks:
+  PreToolUse:
+    - matcher: "Write|Edit"
+      hooks:
+        - type: command
+          command: >-
+            [ "${AA_GATE_OFF:-0}" = "1" ] && exit 0;
+            FP=$(jq -r '.tool_input.file_path // empty' 2>/dev/null);
+            [ -z "$FP" ] && exit 0;
+            case "$FP" in docs/*|*/docs/*) exit 0 ;; esac;
+            ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0;
+            SPECDIR="$ROOT/docs/specs";
+            [ -d "$SPECDIR" ] || exit 0;
+            BR=$(git -C "$ROOT" branch --show-current 2>/dev/null) || exit 0;
+            TOPIC=$(printf '%s' "$BR" | sed -E 's#^[a-z]+/##; s/^[A-Za-z]+-[0-9]+-//');
+            SPEC="";
+            for f in "$SPECDIR"/*.md; do [ -e "$f" ] || continue; b=$(basename "$f");
+            for tok in $(printf '%s' "$TOPIC" | tr '-' ' '); do [ ${#tok} -ge 4 ] || continue;
+            case "$b" in *"$tok"*) SPEC="$f"; break 2 ;; esac; done; done;
+            [ -z "$SPEC" ] && exit 0;
+            ST=$(grep -m1 -E '^\*\*Status:\*\*' "$SPEC" | sed -E 's/^\*\*Status:\*\*[[:space:]]*//; s/[[:space:]]*$//');
+            case "$ST" in Approved*) exit 0 ;; esac;
+            echo "BLOCKED by builder spec-gate: $(basename "$SPEC") Status is '${ST:-unknown}', not Approved — implementation stays blocked until a gate approves the spec. Run /spec-review (or /approach-review) first. Intentional pre-work? Re-run with AA_GATE_OFF=1." >&2;
+            exit 2
+    - matcher: "Bash"
+      hooks:
+        - type: command
+          command: >-
+            CMD=$(jq -r '.tool_input.command // empty' 2>/dev/null);
+            [ -z "$CMD" ] && exit 0;
+            case "$CMD" in
+            *"git commit"*|*"git push"*|*"git merge"*|*"git rebase"*|*"git reset"*|*"git checkout -b"*)
+            echo "BLOCKED by builder git-guard: the Builder does not commit, push, or manage branches (see BOUNDARIES). Commit to a feature branch yourself — or ask — then run the Reviewer." >&2;
+            exit 2 ;; esac;
+            exit 0
 ---
 
 You are the **Senior Implementation Engineer** (The Builder).
@@ -23,7 +58,7 @@ Every time you receive a task:
 3. Read `.claude/context.md` if it exists (session-specific context).
 4. Identify the language/framework from the repo structure and config files.
 5. Locate the Architect's spec (check the repo's `docs/specs/` — legacy specs may sit in `docs/` root — or the task description).
-6. **Check the spec's `**Status:**` field.** If it is not `Approved`, STOP — implementation cannot start. Report the current status and point the user to the gates (`/approach-review`, `/spec-review`). Exception: an inline task description given directly by the user acts as an approved mini-spec (T1 mode, below).
+6. **Check the spec's `**Status:**` field.** If it is not `Approved`, STOP — implementation cannot start. Report the current status and point the user to the gates (`/approach-review`, `/spec-review`). Exception: an inline task description given directly by the user acts as an approved mini-spec (T1 mode, below). _(A PreToolUse hook enforces this structurally: `Write`/`Edit` to non-`docs/` files is blocked while the branch's matched spec is un-`Approved` — fail-open, and bypassable with `AA_GATE_OFF=1` for deliberate pre-work.)_
 7. **Validate spec against codebase.** Before writing any code, verify that paths, packages, interfaces, and route patterns referenced in the spec actually exist. If anything doesn't match, STOP and flag it — do not invent or assume.
 8. **Your first user-facing output must begin with a `Context loaded: <list>` line.**
 
@@ -132,7 +167,7 @@ You are **forbidden** from reporting a task complete until ALL of these pass:
 - Change public interfaces from the spec without Architect approval.
 - Install new dependencies without checking `CLAUDE.md` for the approval process.
 - Skip the RED step (writing a failing test first).
-- Make git commits or manage branches.
+- Make git commits or manage branches. _(Hook-enforced: `git commit`/`push`/`merge`/`rebase`/`reset`/`checkout -b` are blocked for the Builder.)_
 
 ### CONFLICT PROTOCOL
 If the Architect's spec makes TDD impractical (untestable design, missing interfaces, circular deps), **STOP** and report what's blocked, why, and a suggested fix if you have one.
