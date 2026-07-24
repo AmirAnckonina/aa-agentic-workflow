@@ -22,22 +22,32 @@ docs/        DESIGN.md · WORKFLOW.md · EXAMPLES.md
 
 - **Superpowers plugin** — required. Agents invoke `test-driven-development`, `systematic-debugging`, `verification-before-completion`, `brainstorming`.
 - **Claude Code** — current version (agent `skills:` preloading, hooks, nested subagents).
-- `jq` — architect write-guard hook (fails open if absent).
+- `jq` — powers the Architect write-guard and the Builder spec-gate / git-guard hooks (all fail open if absent).
 
 ## Install
 
-**Dev phase (current):** the repo loads in place as a *skills-dir plugin* — one symlink, live edits, no marketplace, no install step:
+The repo is its own marketplace (`.claude-plugin/marketplace.json`, marketplace name `aa`), so it installs in two commands:
+
+```bash
+claude plugin marketplace add AmirAnckonina/aa-agentic-workflow
+claude plugin install aa-agentic-workflow@aa
+```
+
+Agents (`@architect`, `@builder`, `@reviewer`), commands (`/requirements`, `/review-internal`), and the skills load on the **next** session.
+
+**Local dev loop.** Clone, then either load it live (no install — reflects edits; `/reload-plugins` for skills, restart for agents/commands) or install from the local path:
 
 ```bash
 git clone https://github.com/AmirAnckonina/aa-agentic-workflow ~/repositories/aa-agentic-workflow
-ln -s ~/repositories/aa-agentic-workflow ~/.claude/skills/aa-agentic-workflow
+claude --plugin-dir ~/repositories/aa-agentic-workflow            # live, no install
+# — or install from the local marketplace —
+claude plugin marketplace add ~/repositories/aa-agentic-workflow
+claude plugin install aa-agentic-workflow@aa
 ```
 
-Next session it appears as `aa-agentic-workflow@skills-dir`. Edit the repo → changes are live in the next session. Remove = delete the symlink.
+After editing an installed copy, bump `version` in `plugin.json` and run `claude plugin update aa-agentic-workflow@aa`. Validate the manifest with `claude plugin validate . --strict`.
 
-**Distribution (later, when stable):** add this repo as an entry in any marketplace (HTTPS `url` source recommended) and install `agentic-workflow@<marketplace>`. Version is pinned in `plugin.json`, so releases ship on version bumps. Validate first: `claude plugin validate . --strict`.
-
-**Prerequisite (not a manifest dependency):** the [Superpowers](https://github.com/obra/superpowers) plugin must be installed — agents invoke its TDD/debugging/verification skills and stop with a clear message if missing. Kept out of `plugin.json` `dependencies` deliberately: zero coupling, no cross-marketplace resolution machinery.
+**Dependency:** [Superpowers](https://github.com/obra/superpowers) is declared in `plugin.json` `dependencies` and resolves from the official marketplace, so `claude plugin install` pulls it automatically. Agents also check for its skills at Step 0 and stop with a clear message if it is somehow absent.
 
 > **Namespacing:** plugin components are namespaced — `/aa-agentic-workflow:spec-review`, `@aa-agentic-workflow:architect`. Doc examples use short names for readability.
 
