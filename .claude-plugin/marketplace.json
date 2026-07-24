@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-marketplace.json",
+  "name": "aa",
+  "description": "Amir Anckonina's Claude Code plugins — a governance-first, spec-driven agentic SDLC pipeline and related tooling.",
+  "owner": {
+    "name": "Amir Anckonina",
+    "url": "https://github.com/AmirAnckonina"
+  },
+  "plugins": [
+    {
+      "name": "aa-agentic-workflow",
+      "source": ".",
+      "description": "Spec-driven, governance-first SDLC pipeline: optional EARS requirements → Architect (design → decompose) → gates → Builder → Reviewer, with spec-as-source-of-truth and enforced approval gates. Delegates TDD/debugging to Superpowers and quality review to built-in /code-review."
+    }
+  ]
+}

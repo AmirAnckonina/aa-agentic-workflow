@@ -155,19 +155,19 @@ agentic-workflow/
 └── README.md
 ```
 
-- **Dev loop:** this repo is the source of truth; local install for iteration (symlink or `plugin install --local` — whichever the plugin tooling supports; verify at build time).
+- **Dev loop:** this repo is the source of truth; iterate with `claude --plugin-dir <repo>` (live, no install) or a local-marketplace install refreshed via `claude plugin update` on a version bump.
 - **Distribution:** Claude Code plugin via marketplace — versioned, updatable, enable/disable, shareable. `custom-agentic-tools` keeps the unrelated capabilities (atlassian, slack-comms, service-ops…) and retires its agentic-workflow bundle after migration.
 
 ## 11. Dependencies
 
 - **Superpowers plugin** — required. README states it; agents may check for a required skill at Step 0 and stop with an actionable message if absent. No duplicated fallback content (Principle 5).
 - **Claude Code ≥ current** — nested subagents (Reviewer), agent `skills:` preloading, hooks.
-- `jq` — write-guard hook (fails open if absent, as in v1).
+- `jq` — Architect write-guard + Builder spec-gate / git-guard hooks (fail open if absent, as in v1).
 
-## 12. Future Slots (reserved, not designed)
+## 12. Future Slots
 
-- **PRD stage** — product altitude (what/why/success metrics), above Discovery; its approval will absorb the "is this the right thing?" question, further narrowing approach-review to purely technical challenge.
-- **Brainstorm-as-artifact** — if intent summaries prove worth persisting, Discovery gains an artifact + optional gate; today it stays a chat-level step.
+- ~~**PRD stage**~~ — **implemented in v0.5.0** (§15): the optional `requirements-composition` front stage (`/requirements`, EARS + `R#`) supplies the product what/why; the Architect owns design and — spec-then-tasks — decomposition.
+- **Brainstorm-as-artifact** — partly addressed: `/requirements` rents `superpowers:brainstorming` and can structure an existing brainstorming design doc into the Requirements doc. A standalone persisted intent-summary artifact remains unreserved.
 
 ## 13. Migration Plan
 
@@ -176,6 +176,7 @@ agentic-workflow/
    - **spec-review port notes** (reviewed 2026-07-13 — structure, iteration protocol, and feedback quality are sound; role unchanged): (a) skip perspectives whose target spec sections are `N/A — [reason]`, announcing the skip — no more auditing sections that don't exist; (b) rewire references: `/cto-review` → `/approach-review`, verify the linked brief is `Approach-Approved`, and have auditors read the brief so already-challenged concerns aren't re-raised as suggestions; (c) add the §7 Step-0 context read + `Context loaded:` line; (d) keep the 5 perspective checklists as-is — curated knowledge, no delegation target exists for spec auditing.
    - **Efficiency trims (2026-07-14, post-M1 heaviness review — quality preserved, ceremony scaled):** (1) T2 fast track is the default — inline chat brief with recorded waiver, promotion rule to full brief + Gate A on any real design question; (2) Gate B lite/panel modes — one fresh-context auditor for T2, 5-panel for T3, lite→panel escalation guardrail; (3) segment consent — batched "go" across pass verdicts, any non-pass stops. Ordinary T2 now costs 2-3 round-trips and 1 audit subagent instead of 6-7 and 5.
 3. **M2 — package:** ✅ **done 2026-07-14.** Schema verified against live docs (open question #1 closed): `.claude-plugin/plugin.json` (name-only required; default component dirs match our layout) + `.claude-plugin/marketplace.json` (same repo is its own marketplace, source `"./"`). `superpowers` declared via the manifest `dependencies` field. Version pinned (`0.2.0`) so updates ship on version bumps, not every commit. `claude plugin validate . --strict` passes. Dev-phase install (final decision, 2026-07-14): **skills-dir plugin** — the repo symlinked at `~/.claude/skills/agentic-workflow` loads in place as `agentic-workflow@skills-dir`; live edits, no marketplace, no version-bump-per-change. Fully self-contained and decoupled: NOT listed in aa-tools (aa-code-review is a separate project) and NO manifest `dependencies` (Superpowers is a documented prerequisite checked at agent Step 0 — the cross-marketplace dependency machinery was tried and deliberately removed as over-coupling). Distribution later = a marketplace entry pointing at this repo (HTTPS `url` source; the `github` source type requires SSH host keys). Note: plugin components are namespaced (`agentic-workflow:spec-review`); symlink dev-loop and plugin install are mutually exclusive.
+   - **Superseded 2026-07-24:** the skills-dir symlink was found *not* to register agents or commands (a whole-repo symlink exposes only nested skills, double-nested and undiscovered), so it never actually activated the pipeline. Corrected to a real plugin install — `.claude-plugin/marketplace.json` (marketplace `aa`, source `"."`) + `claude plugin install aa-agentic-workflow@aa`; `claude --plugin-dir <repo>` for the live dev loop. Shipped in **v0.6.0** alongside the structural Builder hook gates (spec-gate + git-guard) and the two-default routing. Also reversed from M1/M2: `superpowers` is now declared in `plugin.json` `dependencies` (resolved from the official marketplace), so install pulls it automatically — the Step-0 skill check remains as a safety net.
 4. **M3 — smoke test:** ✅ **passed 2026-07-14** (20/20 checks; run before M2 by choice). T1 headless Builder + T2 staged pipeline (architect → Gate B lite → builder → /review-internal) in a Go sandbox. Verified: context contract (`Context loaded:` at every stage), fast-track inline brief + waiver, Gate B lite mode + N/A perspective skip, Approved-gate authorization, both Superpowers delegations, Reviewer→/code-review **direct** invocation from a subagent (fallback not needed), SHIP IT report. Fix applied from findings: commit-before-review documented + Reviewer empty-diff working-tree fallback.
 5. **M4 — retire v1:** remove the agentic-workflow bundle from `custom-agentic-tools`, leave a pointer README.
 
@@ -186,3 +187,18 @@ agentic-workflow/
 3. ~~Approach Brief format~~ — **Resolved at M1:** adopted as proposed into `spec-format` (+ `Tier:` line; Options Considered requires ≥1 real alternative).
 4. ~~`build-report` skill~~ — **Resolved at M1: folded into the Builder's output protocol** as a compact Build Report whose AC → Test Map feeds Reviewer Pass 1.4 (trust-but-verify). Standalone skill dropped.
 5. **`coding-standards`** — carried into this repo verbatim (agents preload it; a self-contained plugin must carry what it preloads). Future edits happen here, not in `custom-agentic-tools`.
+
+## 15. v0.5.0 — Spec-Driven Front Stage + In-Architect Decomposition (Model A)
+
+**Problem.** The pipeline governed single-task SDLC well but had no altitude above one spec: no way to compose raw needs into structured requirements, and no explicit path for a feature bigger than one spec. In practice this made "am I handing the Architect one task or many?" ambiguous.
+
+**Research grounding.** Three passes over Spec Kit, Kiro, OpenSpec, Taskmaster, BMAD, and Anthropic guidance found unanimous convergence on **spec-then-tasks**: a *feature-level* design comes first, and tasks are **derived from it afterward** by a **cheap step run by the same agent** (a separate role/gate only earns its keep at team scale). One spec = many tasks; a task ≈ one independently testable unit. For solo/fast work the consensus is **keep the artifact, drop the gate** (gate only system-level work). An earlier draft (v0.4.0, unmerged) built the inverse — a gated `/decompose` front stage producing one-spec-per-task ("Model B") — the one model no tool uses; it was rejected.
+
+**Decisions (consistent with Principles §3):**
+1. **Optional requirements front stage.** `requirements-composition` (`/requirements`): raw need → gated EARS doc with `R#` IDs. Rents `superpowers:brainstorming` for the interview (superpowers ships no PRD skill). À la carte — the fast single-task path pays nothing.
+2. **Decomposition lives inside the Architect, downstream of the brief.** It is the existing `spec-format` "split the spec" decision made explicit and given a ledger (the Task Map). Method in the preloaded `decomposition` skill; the agent gains one short beat (step 3.5) — the Architect's surface stays two modes + a reasoning toolkit, not a new mode or a 6th lens.
+3. **Ungated for T1/T2; T3 coverage audit optional.** The approach was already challenged at Gate A; the split is a derivative. Avoids the "waterfall in markdown" failure mode the research flags.
+4. **Specs written just-in-time** (spec durable, context disposable); the Architect hands the Builder one spec at a time.
+5. **Traceability spine** — `R#` → Task Map `Requirements` column → spec `**Requirements:**` line → Builder AC→Test map → Reviewer Pass-1 check 1.7 (IMPORTANT, never blocking).
+6. **No orchestrator (retained).** The Task Map + the existing per-task flow are the whole loop; the human schedules.
+7. **Cost scaled to risk (pacing).** Mechanical stages run on **Sonnet** (Reviewer — Pass 1 is objective + Pass 2 delegates to `/code-review`; `/requirements` — EARS is a constrained format); design-critical stages stay **Opus** (Architect, Gate A, and **Gate B at both tiers** — it is the quality moat, so it keeps full reasoning depth). Gate B lite is made cheaper by **breadth, not depth** — **focused** to the 2–3 perspectives the spec's surface triggers (Completeness + Scope always), one auditor vs the panel's five, with the lite→panel escalation guardrail intact. Independent (`[P]`) specs build in parallel worktrees. Depth-critical work stays heavy; the savings come from not spending Opus on mechanical work, focusing (not weakening) the audit, not over-tiering, and not serializing independent specs.

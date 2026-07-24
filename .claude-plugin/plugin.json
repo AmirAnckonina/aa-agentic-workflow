@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "aa-agentic-workflow",
   "displayName": "AA Agentic Workflow",
-  "version": "0.3.0",
-  "description": "Governance-first SDLC pipeline: Architect → gates → Builder → Reviewer, with spec-as-source-of-truth and enforced approval gates. Delegates TDD/debugging to Superpowers and quality review to built-in /code-review.",
+  "version": "0.6.0",
+  "description": "Spec-driven, governance-first SDLC pipeline: optional EARS requirements → Architect (design → decompose into task-specs only if needed) → gates → Builder → Reviewer, with spec-as-source-of-truth, R# traceability, and enforced approval gates. Delegates TDD/debugging to Superpowers and quality review to built-in /code-review.",
   "author": {
     "name": "Amir Anckonina",
     "url": "https://github.com/AmirAnckonina"
