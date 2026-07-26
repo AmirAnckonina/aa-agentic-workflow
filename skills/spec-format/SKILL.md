@@ -39,11 +39,13 @@ When a gate sends an artifact back to `Draft`, the Architect revises and the cyc
 
 **The `Status:` field is the single source of truth.** Each gate sets it when it starts and when it verdicts. The Builder checks the spec's status — if not `Approved`, stop.
 
+**Gate consent (canonical rule):** a gate never assumes consent — after any verdict, the next step is the user's call. Exception: **segment consent** granted upfront (e.g. *"run through Gate B"*) lets pass verdicts flow to the next stage without re-asking; any non-pass verdict (RETHINK/Blocking) always stops the segment. Segment consent changes who says "go" between gates, never whether a gate runs, and never substitutes for `Status: Approved` — the Builder's gate is structural.
+
 ---
 
 ## Requirements & Task Map Artifacts (optional — bracket the brief/spec)
 
-Two more artifacts sit around the brief/spec. Both are optional — a known single task uses neither. `spec-format` owns their *format*; the *method* lives elsewhere (`requirements-composition` for requirements; the Architect-preloaded `decomposition` skill for the task map).
+Two more artifacts sit around the brief/spec. Both are optional — a known single task uses neither. `spec-format` owns their *format*; the *method* lives elsewhere (`requirements-composition` for requirements; the Architect's on-demand `decomposition` skill for the task map).
 
 - **Requirements doc** — an optional **front stage** (`/requirements`), produced *before* any design: what/why in EARS with `R#` IDs.
 - **Task Map** — produced by the **Architect**, *after* the brief, and **only when a feature is more than one spec** (spec-then-tasks — the design comes first, tasks derive from it). It is the Architect's ledger of the split specs. **Ungated for T1/T2** (reviewed inline; its lifecycle rides the brief's Gate A); an optional read-only coverage audit runs for T3 only.

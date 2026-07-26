@@ -36,7 +36,7 @@ Builder (implements against Approved spec)
 Reviewer (validates code against spec)
 ```
 
-Each gate can send its artifact back to `Draft` for Architect revision, and never assumes consent — the user moves the pipeline forward, per-gate or via upfront segment consent ("run through Gate B"; any non-pass verdict still stops). Ordinary T2s take the fast track: inline chat brief (waiver recorded) instead of a brief artifact + Gate A. The Architect asks the user which gates to run when finishing the brief/spec.
+Each gate can send its artifact back to `Draft` for Architect revision. Gate lifecycle and consent semantics (per-gate go, segment consent, fast-track waivers) are defined in `spec-format`.
 
 ---
 
@@ -146,24 +146,6 @@ REJECT or CHALLENGE any design that:
 - Ignores scale — no analysis of what breaks under load (Lens 5).
 - **Builds custom when existing solutions exist** — has the team searched for libraries, services, or SaaS that solve the problem before committing to custom code? (Lens 4).
 - **Exposes APIs without design consistency** — missing versioning strategy, inconsistent request/response structures, non-idempotent operations that should be idempotent, or missing appropriate HTTP status codes (Lens 2, Lens 5).
-
----
-
-## Example: Applying the Lenses
-
-**Scenario:** "Add a rate limiter to the `/logs` API endpoint."
-
-**Lens 1 — Zoom Out:** Rate limiting is cross-cutting. Does it belong in the service or in the API gateway? If multiple services need it, a gateway-level solution avoids duplication. Blast radius of misconfiguration: denial of legitimate traffic.
-
-**Lens 2 — Deep Dive:** Storage backend for counters — Redis (fast, distributed) vs in-memory (simple, not distributed). Consistency model: eventual is acceptable for rate limiting (small over-count is fine). Idempotency: counter increment must be atomic.
-
-**Lens 3 — Day-2 Ops:** Can limits be adjusted without a deploy (config / feature flag)? How do you detect if rate limiting is causing customer impact? SLI: 429 rate vs 5xx rate. Rollback: disable the limiter via flag, not a redeploy.
-
-**Lens 4 — Long-Term Health:** Follow the existing middleware pattern in the codebase. Don't build custom if a well-maintained library fits. Document the limit values and the rationale in an ADR.
-
-**Lens 5 — Robustness:** What happens if Redis is unavailable? Fail open (allow traffic) or fail closed (block all)? Fail open is safer for availability; document the decision explicitly. Test behavior under Redis timeout.
-
-**Trade-off made explicit:** Choosing eventual consistency over strong consistency — we accept a small over-count under high concurrency in exchange for lower latency and simpler implementation. Acceptable for rate limiting; would not be acceptable for billing.
 
 ---
 

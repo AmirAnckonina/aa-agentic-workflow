@@ -2,6 +2,19 @@
 
 All notable changes to `aa-agentic-workflow`. Format loosely follows [Keep a Changelog](https://keepachangelog.com/); versions track `plugin.json`.
 
+## [0.7.0] — 2026-07-26
+
+Context slimming per Anthropic's "[The new rules of context engineering for Claude 5 generation models](https://claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models)" (Thariq Shihipar, 2026-07-24). ~20% fewer words across agent/skill context with no process change: every gate, hook, tier, and artifact contract is intact.
+
+### Changed
+- **`coding-standards` rewritten around team-specific opinions** (1,190 → ~560 words): kept coverage bar, concurrency/async discipline, fail-fast, error contracts (incl. the swagger status-code rule), size defaults, library-first + NIH list, boundary DTOs, security musts, data-layer performance, logging conventions. Dropped what a Claude 5-gen model infers from the surrounding codebase: naming/readability prose, SOLID/encapsulation boilerplate, comments policy, language-idiom sections (*rules → judgment*).
+- **Gate-consent semantics single-sourced in `spec-format`** ("Gate consent (canonical rule)"); `architect.md`, `architect-methodology`, `approach-review`, and `spec-review` now reference it instead of restating it (*repeat yourself → single source*).
+- **`architect.md` deduplicated against its co-loaded skills**: Weight Discipline compressed to a pointer at `spec-format`'s anti-pattern table; split thresholds referenced, not restated.
+- **`decomposition` no longer preloaded** by the Architect — loaded on demand at step 3.5, where it's actually used (*upfront → progressive disclosure*).
+- **Old-model babysitting removed** from all three agents: "a turn with 0 tool uses is a failed turn" blocks, emoji-rendering directive, "protocol violation" framing (*rules → judgment*).
+- **`MEMORY MANAGEMENT` checklists → `MEMORY SCOPE` one-liners** in all agents — auto-memory captures content; the sections now state only what's in/out of scope (*manual memory → auto-memory*).
+- `architect-methodology`: worked rate-limiter example removed — the five lens definitions carry the method (*examples → interface design*).
+
 ## [0.6.0] — 2026-07-24
 
 ### Added

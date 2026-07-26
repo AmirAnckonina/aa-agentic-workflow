@@ -1,6 +1,6 @@
 ---
 name: decomposition
-description: "How the Architect decomposes a feature into a Task Map — deciding one spec vs many, then right-sizing, tiering, ordering, and R#-mapping the tasks that derive from the Approach Brief. Preloaded by the Architect; runs downstream of the brief, not as a front stage. Not user-invocable."
+description: "How the Architect decomposes a feature into a Task Map — deciding one spec vs many, then right-sizing, tiering, ordering, and R#-mapping the tasks that derive from the Approach Brief. Loaded on demand by the Architect at step 3.5; runs downstream of the brief, not as a front stage. Not user-invocable."
 user-invocable: false
 ---
 

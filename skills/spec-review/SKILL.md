@@ -219,7 +219,7 @@ Update the `## Review Notes` table in the spec:
 - If no perspective has blocking issues → set `**Status:**` to `Approved`
 - If any ❌ → set `**Status:**` to `Draft` (back to Architect for revision)
 
-**A gate never assumes consent.** Present the verdict and stop — starting the Builder is the user's call. Exception: if the user granted **segment consent** upfront (e.g. *"run it through the build"*), an Approved verdict flows onward without re-asking — but any Blocking verdict always stops, regardless of consent. Segment consent never substitutes for `Status: Approved` — the Builder's gate is structural.
+**Consent:** present the verdict and stop — starting the Builder is the user's call, per the gate-consent rule in `spec-format` (segment consent lets an Approved verdict flow onward; any Blocking verdict always stops; consent never substitutes for `Status: Approved`).
 
 ---
 

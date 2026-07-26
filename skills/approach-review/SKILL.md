@@ -162,7 +162,7 @@ Preserve prior rounds — append new rounds, don't overwrite history.
 - PASS → set brief `**Status:**` to `Approach-Approved`
 - RETHINK → set brief `**Status:**` to `Draft`
 
-**A gate never assumes consent.** Present the verdict and stop — writing the spec is the Architect's next move, on the user's go. Exception: if the user granted **segment consent** upfront (e.g. *"run it through Gate B"*), a PASS flows to the next stage without re-asking — but any RETHINK always stops, regardless of consent.
+**Consent:** present the verdict and stop — the next move is the user's call, per the gate-consent rule in `spec-format` (segment consent lets a PASS flow onward; any RETHINK always stops).
 
 ---
 
