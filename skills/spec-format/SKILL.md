@@ -107,6 +107,17 @@ _Not audited (task/feature) | Not audited yet (system change)_
 
 ---
 
+## Repo Spec Standards (optional, per-repo)
+
+A target repo may declare its design non-negotiables in **`docs/spec-standards.md`** (or another path declared in `docs/agentic-context.md`). Plain markdown, small (keep under ~10 KB), team-owned. Each standard is a short rule — API conventions, security posture, scale realities, naming — optionally marked `[CRITICAL]` in its heading.
+
+How the pipeline uses it:
+- **Architect** reads it at Step 0 and writes briefs/specs *to* it.
+- **Gate B** injects it verbatim into every auditor: standards override the generic charters on conflict; a `[CRITICAL]` violation is always Blocking; and beyond the charters' own named traps, the file is the auditors' **only license for convention-level findings** — no standard cited, no convention nag.
+- **Missing file is not an error** — the pipeline runs on its generic charters alone.
+
+---
+
 ## Approach Brief Format
 
 **Hard cap: one page.** If it doesn't fit, the scope is too big — split before briefing.
@@ -260,7 +271,7 @@ The spec defines **what** and **why**. The Builder decides **how**. Do NOT inclu
 
 - **Architect:** Produces the brief first (feature and system paths); after `Approach-Approved` (or a recorded skip), produces the spec following this format exactly. All section headings required (`N/A — reason` allowed per the escape hatch above). Writes function signatures and type definitions — never function bodies. When finishing the spec, asks the user which reviews to run before advancing status.
 - **Approach Review (`/aa-approach-review`, Gate A):** Reads the brief. Writes challenge rounds into the brief's `## Approach Review` section. Sets brief Status: `Approach Review` while active → `Approach-Approved` on PASS, `Draft` on RETHINK.
-- **Detail Audit (`/aa-spec-review`, Gate B):** Verifies the linked brief is `Approach-Approved` (or the skip is recorded). Reads the full spec + brief. Fills the `## Review Notes` table per perspective. Updates spec `Status` to `Detail Audit` while active, back to `Draft` if blocking issues, or to `Approved` if all pass.
+- **Detail Audit (`/aa-spec-review`, Gate B):** Verifies the linked brief is `Approach-Approved` (or the skip is recorded). Its fresh-context auditors read the full spec + brief. Fills the `## Review Notes` table per perspective. Updates spec `Status` to `Detail Audit` while active, back to `Draft` if blocking issues, or to `Approved` if all pass.
 - **Builder:** First checks spec `Status` — if not `Approved`, stop and point to the gates. Then maps each section to implementation:
   - Acceptance Criteria → test cases (at least one per criterion)
   - Interfaces → exact implementation (no renaming, no reordering)

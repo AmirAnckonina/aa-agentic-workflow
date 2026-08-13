@@ -68,12 +68,13 @@ Create `docs/agentic-context.md` at the root of the repo you're working in:
 - Conventions: CLAUDE.md
 - Domain: docs/domain/billing.md
 - Review rules: docs/review-rules.md         # optional — injected into Reviewer Pass 2
+- Spec standards: docs/spec-standards.md     # optional — Architect writes to it, Gate B audits against it
 - Related repos: ../shared-protos (read-only)
 ```
 
 Every stage then opens its output with `Context loaded: <list>` — your verification it worked from the right material. **No manifest is fine**; stages fall back to `CLAUDE.md` plus a `docs/` scan and say so.
 
-The `Review rules` entry is worth knowing about: point it at a file of past incidents and hard-won conventions, and the Reviewer injects those rules into its quality pass.
+The two rules entries are worth knowing about: `Review rules` points at past incidents and hard-won conventions the Reviewer injects into its quality pass; `Spec standards` (default path `docs/spec-standards.md`, no manifest entry needed) holds your design non-negotiables — the Architect writes specs *to* them, Gate B auditors treat them as the only license for convention-level findings beyond their charters' named traps, and a `[CRITICAL]`-marked standard blocks unconditionally.
 
 ## 4. Your first feature, end to end
 

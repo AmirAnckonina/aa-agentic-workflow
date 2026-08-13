@@ -49,7 +49,7 @@ Everything else is an **escalation the pipeline surfaces — never a knob you pr
 
 - **Below feature scale, the agent tells you.** Hand a chore or a task to the Architect and it declines, naming the direct path instead.
 - **Mid-flight promotion.** Maturity isn't monotonic: a task that surfaces a design question → the Builder stops and recommends the Architect. A feature that surfaces one mid-spec → the Architect promotes to a full brief plus Gate A. **Nothing designs ad hoc.**
-- **Gate-B breadth.** Lite by default; the auditor **auto-escalates to panel** on real risk (auth, migration, external API, irreversible). Force it with *"panel mode"*; waive it with *"skip Gate B"* (trivial changes only).
+- **Gate-B breadth.** Lite by default; an auditor that finds real risk (auth, migration, external API, irreversible) **flags it, and the next round runs as panel**. Force it with *"panel mode"*; waive it with *"skip Gate B"* (trivial changes only).
 
 **Don't over-weigh and don't over-split.** Running system-change rigor on an ordinary feature, or decomposing what one spec could hold, is the biggest self-inflicted cost in the system.
 
@@ -146,9 +146,15 @@ Segment consent never bypasses a gate — it only pre-answers "go" on a pass, an
 |---|---|
 | Trivial or mechanical — no new logic, no external input, no contract change | **Skip** — marked Approved directly, recorded as `⏭️ Skipped`. Rare; such work is usually a chore or task anyway. |
 | An ordinary feature (the default) | **Lite** — one **Opus** auditor, **focused** to the 2–3 perspectives that matter (Completeness + Scope always; Security / Scalability / API Design only if the surface triggers them) |
-| A system change, or a feature touching **auth, migration, external API, or an irreversible change** | **Panel** — 5 independent Opus auditors in parallel. A lite auditor auto-escalates here if it smells real risk. |
+| A system change, or a feature touching **auth, migration, external API, or an irreversible change** | **Panel** — 5 independent Opus auditors in parallel. A lite auditor that smells real risk flags it, and the next round runs here. |
 
 Lite is cheaper by **breadth, not depth** — it keeps full Opus reasoning, because Gate B is the last check before code exists. Elsewhere the model tier does drop: mechanical stages (Reviewer, `/aa-requirements`) run on Sonnet, design-critical ones (Architect, both gates) stay Opus.
+
+### Gate B: what comes back
+
+Auditors report **findings, not coverage** — capped (≤8 findings, ≤3 of them suggestions), with no praise sections and no walkthrough of what looked fine. A **Blocking** verdict must carry articulated evidence: the concrete failure it causes in *this* spec, and why nothing existing already covers it — anything the auditor can't evidence that way arrives as a suggestion. Generic best practices the spec's surface doesn't trigger, and conventions your codebase already enforces, don't come back at all.
+
+**Per-repo standards** sharpen this: declare your design non-negotiables in `docs/spec-standards.md` (format in `spec-format`) and Gate B audits against *your* rules — a `[CRITICAL]`-marked standard blocks unconditionally, and beyond the charters' own named traps, the file is the auditors' only license to raise convention-level findings. The Architect reads the same file, so specs are written to your standards before they're ever audited. No file → the generic charters alone.
 
 ## Front stage and decomposition
 
