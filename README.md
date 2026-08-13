@@ -6,7 +6,7 @@
 
 Agents don't write code until a spec exists, an independent reviewer has audited it, and you've said go.
 
-[![Version](https://img.shields.io/badge/version-0.10.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.11.0-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8A63D2)](https://docs.claude.com/en/docs/claude-code)
 [![Requires: Superpowers](https://img.shields.io/badge/requires-superpowers-orange)](https://github.com/obra/superpowers)
@@ -71,7 +71,7 @@ The design principle is **own decisions, rent techniques**. This plugin owns the
 
 | Owned here | Rented |
 |---|---|
-| Artifacts: Requirements doc, Approach Brief, Task Map, Spec | TDD discipline → `superpowers:test-driven-development` |
+| Artifacts: Requirements doc, Approach Brief, Feature Plan, Spec | TDD discipline → `superpowers:test-driven-development` |
 | Gates A & B, and their verdict semantics | Debugging → `superpowers:systematic-debugging` |
 | Role agents: Architect · Builder · Reviewer | Done-claim verification → `superpowers:verification-before-completion` |
 | Status lifecycle + structural enforcement (hooks) | Ideation → `superpowers:brainstorming` |

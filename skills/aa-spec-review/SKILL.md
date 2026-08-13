@@ -72,7 +72,7 @@ Map each perspective to its target spec sections. If a perspective's target sect
 
 | # | Perspective | Charter File | Target Spec Sections | Skip when |
 |---|---|---|---|---|
-| 1 | Security | `references/security-review.md` | Security Considerations, Interfaces | Security Considerations is N/A **and** no external input/auth surface in Interfaces |
+| 1 | Security | `references/security-review.md` | Security Considerations, Interfaces | Security Considerations is N/A **and** no external input, auth surface, or sensitive data in Interfaces |
 | 2 | Scalability | `references/scalability-review.md` | Constraints, Failure Modes, Component Responsibilities | the change has no runtime behavior (e.g., docs/config rename) |
 | 3 | API Design | `references/api-design-review.md` | API Contracts | API Contracts absent or N/A |
 | 4 | Completeness | `references/completeness-review.md` | whole spec | never skipped |
@@ -84,7 +84,7 @@ Completeness and Scope always run — they are the audits that catch wrongly-N/A
 
 Launch **one** subagent with `model: "opus"` carrying the **focused perspective set**:
 - **Always Completeness + Scope.**
-- **Add a risk perspective only when the spec's surface triggers it:** Security (external input / auth / secrets), Scalability (new runtime behavior under load), API Design (new or changed API contract).
+- **Add a risk perspective only when the spec's surface triggers it:** Security (external input / auth / secrets / sensitive data), Scalability (new runtime behavior under load), API Design (new or changed API contract).
 
 Name the selection and why (*"running Completeness, Scope, Security — the spec adds an auth-checked endpoint"*). Announce: *"Gate B mode: lite (feature) — [N] focused perspectives: [list]."*
 
@@ -105,10 +105,13 @@ what is wrong; never walk through what you checked and found fine.
 1. Read the spec at: [SPEC_PATH]
 2. Read the Approach Brief at: [BRIEF_PATH] — its "Approach Review" section lists strategic
    concerns already settled at Gate A. Do NOT re-raise those. [Omit when Gate A was waived.]
-3. Read your charter(s): [CHARTER_PATHS]
-4. Read the codebase files the spec references, plus the files listed in docs/agentic-context.md
+3. If the spec carries a **Plan:** line, read that Feature Plan's Flow and Seam Contracts —
+   a spec that contradicts a frozen seam contract is BLOCKING (the fix goes through the plan
+   first, never unilaterally in the spec).
+4. Read your charter(s): [CHARTER_PATHS]
+5. Read the codebase files the spec references, plus the files listed in docs/agentic-context.md
    when it exists — verify the spec's contracts against the code and the repo's actual conventions.
-5. The original need this spec serves: [REQUIREMENTS_PATH | the brief's Problem section |
+6. The original need this spec serves: [REQUIREMENTS_PATH | the brief's Problem section |
    one-line summary from the dispatcher]. Under- and over-delivery are measured against this.
 
 ## Repo Spec Standards
@@ -125,7 +128,8 @@ if neither a standard nor your charter's traps cover a stylistic/conventional co
   governs disputable judgment calls — NOT unresolved safety-relevant holes: when the spec's own
   silence is the defect (new surface with unspecified auth, data-loss, or failure behavior),
   that silence IS the evidence — block on the unanswered question. A cited [CRITICAL] repo
-  standard is likewise sufficient evidence on its own.
+  standard is likewise sufficient evidence on its own — as is a contradiction of a frozen
+  seam contract (item 3).
 - Caps: at most 8 findings total, at most 3 of them suggestions — severity-first. If you found
   more, keep the top ones and add one line: "Cap hit — N lower-value items omitted."
 - Do NOT report: generic best practices this spec's surface doesn't trigger; conventions the

@@ -95,7 +95,7 @@ Approach Brief:  Draft → Approach Review → Approach-Approved | RETHINK → D
 Full Spec:       Draft → Detail Audit    → Approved          | Blocking → Draft
 ```
 
-Briefs live in the target repo's `docs/briefs/`, specs in `docs/specs/`, Task Maps in `docs/plan/`, requirements in `docs/requirements/` — subdirectories rather than a flat `docs/`, so multi-feature repos stay navigable.
+Briefs live in the target repo's `docs/briefs/`, specs in `docs/specs/`, Feature Plans in `docs/plan/`, requirements in `docs/requirements/` — subdirectories rather than a flat `docs/`, so multi-feature repos stay navigable.
 
 The spec's front matter links its brief. Gate B verifies that brief is `Approach-Approved` — or that Gate A was explicitly waived and recorded, which a system change does not permit. The Builder starts only on `Status: Approved`; inline tasks are exempt because no spec exists for them.
 
@@ -144,7 +144,7 @@ The inverse — a gated decomposition front stage producing one spec per task �
 
 ### 6.7 No orchestrator
 
-The Task Map is a **ledger, not a runner**: a human picks the next task whose dependencies are complete, the Architect writes that spec just in time, and the per-task flow does the rest.
+The Feature Plan is a **ledger, not a runner**: a human picks the next task whose dependencies are complete, the Architect writes that spec just in time, and the per-task flow does the rest.
 
 This is a decision, not a missing feature. An auto-runner would have to make scheduling judgments across a partially-built system with no gate of its own — precisely the class of decision the rest of the design routes to a human. And writing specs just in time keeps the design honest against a codebase that has moved since the brief.
 
@@ -158,7 +158,7 @@ Pass 1 is the part no general-purpose reviewer can do, because it requires an ap
 
 ### 6.9 Traceability spine
 
-`R#` (requirements doc) → Task Map `Requirements` column → spec `**Requirements:**` line → Builder AC → Test map → Reviewer Pass 1 check. A requirement can be followed to the test that proves it. The Pass 1 traceability check is marked IMPORTANT but never blocking — traceability is a navigation aid, and making it a hard gate would punish legitimately untraceable work like exploratory fixes.
+`R#` (requirements doc) → Feature Plan `Requirements` column → spec `**Requirements:**` line → Builder AC → Test map → Reviewer Pass 1 check. A requirement can be followed to the test that proves it. The Pass 1 traceability check is marked IMPORTANT but never blocking — traceability is a navigation aid, and making it a hard gate would punish legitimately untraceable work like exploratory fixes.
 
 ## 7. Packaging
 

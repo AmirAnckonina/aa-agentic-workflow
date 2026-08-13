@@ -30,4 +30,4 @@ Every EARS requirement states what the system **SHALL** do. The clause(s) in fro
 - **Testable.** A criterion you cannot write a pass/fail test against is not done — rewrite it. Ban "fast", "user-friendly", "robust"; state the observable behavior or the measurable threshold.
 - **Name the actor as the system.** The response is what *the system* does, not what the user does.
 - **Cover the unhappy paths.** Every meaningful event-driven requirement usually implies one or more `IF … THEN` guardrails — write them explicitly.
-- **Stable IDs.** Once assigned, an `R#` does not get renumbered — the task map and specs reference it. Add new ones with the next number; retire one by marking it removed, not by reusing its number.
+- **Stable IDs.** Once assigned, an `R#` does not get renumbered — the Feature Plan and specs reference it. Add new ones with the next number; retire one by marking it removed, not by reusing its number.

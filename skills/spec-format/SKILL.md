@@ -1,6 +1,6 @@
 ---
 name: spec-format
-description: "The pipeline's artifact contract: Requirements doc, Approach Brief, Task Map, and Spec formats, their lifecycle states and validation rules. Shared by aa-requirements-composition (front stage), the Architect (produces brief/task-map/specs), the Builder (implements against), and the Reviewer (validates against)."
+description: "The pipeline's artifact contract: Requirements doc, Approach Brief, Feature Plan, and Spec formats, their lifecycle states and validation rules. Shared by aa-requirements-composition (front stage), the Architect (produces brief/plan/specs), the Builder (implements against), and the Reviewer (validates against)."
 user-invocable: false
 ---
 
@@ -43,12 +43,12 @@ When a gate sends an artifact back to `Draft`, the Architect revises and the cyc
 
 ---
 
-## Requirements & Task Map Artifacts (optional — bracket the brief/spec)
+## Requirements & Feature Plan Artifacts (optional — bracket the brief/spec)
 
-Two more artifacts sit around the brief/spec. Both are optional — a known single task uses neither. `spec-format` owns their *format*; the *method* lives elsewhere (`aa-requirements-composition` for requirements; the Architect's on-demand `decomposition` skill for the task map).
+Two more artifacts sit around the brief/spec. Both are optional — a known single task uses neither. `spec-format` owns their *format*; the *method* lives elsewhere (`aa-requirements-composition` for requirements; the Architect's on-demand `decomposition` skill for the plan).
 
 - **Requirements doc** — an optional **front stage** (`/aa-requirements`), produced *before* any design: what/why in EARS with `R#` IDs.
-- **Task Map** — produced by the **Architect**, *after* the brief, and **only when a feature is more than one spec** (spec-then-tasks — the design comes first, tasks derive from it). It is the Architect's ledger of the split specs. **Ungated below system scale** (reviewed inline; its lifecycle rides the brief's Gate A); an optional read-only coverage audit runs for system changes only.
+- **Feature Plan** — produced by the **Architect**, *after* the brief, and **only when a feature is more than one spec** (spec-then-tasks — the design comes first, tasks derive from it). It designs the feature *as a system* — runtime flow, stages, and the seam contracts the split specs must agree on — and doubles as the ledger of those specs. **Ungated below system scale** (reviewed inline; its lifecycle rides the brief's Gate A); an optional read-only coverage audit runs for system changes only.
 
 ### Requirements Doc Format
 
@@ -82,28 +82,48 @@ Location: `docs/requirements/<feature>.md`. Lifecycle: `Draft → Approved` — 
 
 **Rules:** WHAT/WHY only — no tech stack, interfaces, or file names (that's the Architect's job downstream). `R#` IDs are stable and never reused. A criterion you can't write a pass/fail test against isn't done.
 
-### Task Map Format
+### Feature Plan Format
 
-Location: `docs/plan/<feature>-taskmap.md`. Produced by the Architect from the brief when the feature is multi-spec. Ungated below system scale; optional coverage audit for system changes.
+Location: `docs/plan/<feature>-plan.md`. Produced by the Architect from the brief when the feature is multi-spec. Ungated below system scale; optional coverage audit for system changes.
+
+The plan is where the feature is designed **as a system** before it's built as tasks: how the pieces run together, in what order they land, and which interfaces the split specs must agree on. Keep each section as short as the feature allows — two tasks sharing one interface need three lines of seam contract, not a document.
 
 ```markdown
-# <Feature> — Task Map
+# <Feature> — Feature Plan
 
 **Status:** Draft | Approved
 **Brief:** docs/briefs/<feature>.md
 **Requirements:** docs/requirements/<feature>.md  (or _None_)
 
-| Task | Title | Path | Requirements | Depends-on | [P] | Status | Spec | Commit | Verdict |
-|------|-------|------|--------------|-----------|-----|--------|------|--------|---------|
-| T01  | …     | feature | R1, R2    | —         | P   | pending | —   | —      | —       |
-| T02  | …     | task | R3           | T01       |     | pending | —   | —      | —       |
+## Flow
+<!-- The runtime story: the end-to-end path(s) through the components this feature touches —
+     "how does the request/job/event travel", not "what are the tasks". A short numbered
+     sequence or a small mermaid diagram. -->
+
+## Stages
+<!-- Tasks grouped into ordered stages; each stage ends demonstrable. One stage is fine.
+     S1 — <name>: T01, T02 → demonstrable: <what provably works when the stage closes> -->
+
+## Seam Contracts
+<!-- The frozen interfaces BETWEEN tasks — signatures/types/shapes two or more specs share.
+     Defined once here; each spec copies its seams verbatim, never redefines them. Changing
+     a seam means updating this plan first, then the affected specs.
+     _N/A — tasks share no interfaces_ when the split is seamless. -->
+
+## Tasks
+| Task | Title | Path | Stage | Requirements | Depends-on | [P] | Status | Spec | Commit | Verdict |
+|------|-------|------|-------|--------------|-----------|-----|--------|------|--------|---------|
+| T01  | …     | feature | S1  | R1, R2       | —         | P   | pending | —   | —      | —       |
+| T02  | …     | task | S1     | R3           | T01       |     | pending | —   | —      | —       |
 
 ## Coverage Audit
 <!-- System changes only: populated by the Architect's read-only auditor. Do not edit manually. -->
 _Not audited (task/feature) | Not audited yet (system change)_
 ```
 
-**Columns:** `Path` = how the task runs (`task` = straight to the Builder, no spec · `feature` = spec + Gate B). `Requirements` = the `R#`s this task satisfies (the traceability spine). `Depends-on` = task IDs that must be `complete` first. `[P]` = parallel-safe (no shared files, no dependency). `Spec`/`Commit`/`Verdict` fill in as the task moves through the pipeline. Status values: `pending → in_progress → review → complete | blocked`.
+**Columns:** `Path` = how the task runs (`task` = straight to the Builder, no spec · `feature` = spec + Gate B). `Stage` = the stage the task belongs to. `Requirements` = the `R#`s this task satisfies (the traceability spine). `Depends-on` = task IDs that must be `complete` first. `[P]` = parallel-safe (no shared files, no dependency). `Spec`/`Commit`/`Verdict` fill in as the task moves through the pipeline. Status values: `pending → in_progress → review → complete | blocked`.
+
+**Close each stage with an integration checkpoint** — a final `task`-path row whose acceptance criteria are the stage's *demonstrable* line, wiring the stage's pieces together and proving the Flow section's path actually runs end-to-end. No spec needed; it's a bounded task.
 
 ---
 
@@ -161,13 +181,24 @@ _Not reviewed yet_
 
 Every specification MUST contain these sections. The Builder implements against them. The Reviewer validates against them.
 
-**N/A escape hatch (simple / fast-track specs):** a section may be filled with `_N/A — [reason]_` instead of content when it genuinely doesn't apply (e.g., Security Considerations on a log-message fix). The heading itself is never omitted — structure stays greppable. Never write filler to satisfy a heading; `N/A` with a reason beats invented content. Acceptance Criteria and Interfaces are exempt: a spec with no testable criteria or no defined contract is not a spec.
+**N/A escape hatch (any spec):** a section may be filled with `_N/A — [reason]_` instead of content when it genuinely doesn't apply (e.g., Security Considerations on a log-message fix). The heading itself is never omitted — structure stays greppable. Never write filler to satisfy a heading; `N/A` with a reason beats invented content. Acceptance Criteria and Interfaces are exempt: a spec with no testable criteria or no defined contract is not a spec.
+
+**Conditional sections — N/A is the expected default.** Three sections carry content **only when a written trigger fires**; without the trigger, `_N/A — [reason]_` is the *correct* answer, not a shortcut:
+
+| Section | Write content only when… |
+|---|---|
+| Security Considerations | the spec's surface includes auth, external/untrusted input, secrets, or sensitive data |
+| Failure Modes | the spec introduces or touches an external dependency, or a multi-step operation that can partially fail |
+| Component Responsibilities | more than one component is modified |
+
+Untriggered content in these sections is weight, not diligence. Gate B audits the *reason* on an N/A, never the absence itself.
 
 ```markdown
 # [Feature Name]
 
 **Status:** Draft | Detail Audit | Approved
 **Brief:** docs/briefs/<topic>.md (Approach-Approved) | _Inline — Gate A waived: [reason]_
+**Plan:** docs/plan/<feature>-plan.md   <!-- decomposed features only — omit the line otherwise -->
 **Requirements:** R1, R3 (docs/requirements/<feature>.md) | _N/A — inline task_
 
 ## Overview
@@ -223,7 +254,9 @@ Do NOT include implementation code — just what and where.]
 
 Strategic/approach concerns live in the **brief's** `## Approach Review` section — the spec has no strategic-review section. Gate B auditors read the linked brief to know what was already challenged.
 
-**Requirements traceability:** the `**Requirements:**` line lists the `R#` IDs this spec satisfies — the link back up the chain requirement → task → spec. When the feature came from a Task Map, copy the `R#`s from the task's row; when it came from a requirements doc directly, list the `R#`s the spec covers. Individual acceptance criteria may annotate their source as `(R#)`. When the spec originates from a lone task with no requirements doc (the standalone Architect path), the line reads `_N/A — inline task_`. The Reviewer checks this line in Pass 1.
+**Plan linkage (decomposed features):** the `**Plan:**` line links the Feature Plan this spec derives from. The spec **copies its seam contracts from the plan verbatim into its `Interfaces` section**, each annotated `(seam — defined in plan)` — so the Builder and Reviewer enforce them through the normal Interfaces contract. A seam is defined in the plan and never unilaterally changed in a spec. Single-spec features omit the line.
+
+**Requirements traceability:** the `**Requirements:**` line lists the `R#` IDs this spec satisfies — the link back up the chain requirement → task → spec. When the feature came from a Feature Plan, copy the `R#`s from the task's row; when it came from a requirements doc directly, list the `R#`s the spec covers. Individual acceptance criteria may annotate their source as `(R#)`. When the spec originates from a lone task with no requirements doc (the standalone Architect path), the line reads `_N/A — inline task_`. The Reviewer checks this line in Pass 1.
 
 ---
 
@@ -250,7 +283,7 @@ A well-scoped spec should:
 - The spec covers independent capabilities that could be implemented and tested separately
 - You find yourself writing "Phase 1" and "Phase 2" in the same spec
 
-**Ordering split specs:** Number them and note dependencies (e.g., "Prerequisite: Spec 1 must be complete"). Split specs may share one Approach-Approved brief.
+**Ordering split specs:** Number them and note dependencies (e.g., "Prerequisite: Spec 1 must be complete"). Split specs share one Approach-Approved brief and derive from one Feature Plan, copying their seam contracts from it.
 
 ## Anti-Patterns (What NOT to Include)
 
@@ -269,7 +302,7 @@ The spec defines **what** and **why**. The Builder decides **how**. Do NOT inclu
 
 ## How Each Agent Uses This
 
-- **Architect:** Produces the brief first (feature and system paths); after `Approach-Approved` (or a recorded skip), produces the spec following this format exactly. All section headings required (`N/A — reason` allowed per the escape hatch above). Writes function signatures and type definitions — never function bodies. When finishing the spec, asks the user which reviews to run before advancing status.
+- **Architect:** Produces the brief first (feature and system paths); after `Approach-Approved` (or a recorded skip), produces the spec following this format exactly. All section headings required (`N/A — reason` allowed per the escape hatch above; conditional sections default to N/A absent their trigger). For multi-spec features, produces the Feature Plan first and copies each spec's seam contracts from it. Writes function signatures and type definitions — never function bodies. When finishing the spec, asks the user which reviews to run before advancing status.
 - **Approach Review (`/aa-approach-review`, Gate A):** Reads the brief. Writes challenge rounds into the brief's `## Approach Review` section. Sets brief Status: `Approach Review` while active → `Approach-Approved` on PASS, `Draft` on RETHINK.
 - **Detail Audit (`/aa-spec-review`, Gate B):** Verifies the linked brief is `Approach-Approved` (or the skip is recorded). Its fresh-context auditors read the full spec + brief. Fills the `## Review Notes` table per perspective. Updates spec `Status` to `Detail Audit` while active, back to `Draft` if blocking issues, or to `Approved` if all pass.
 - **Builder:** First checks spec `Status` — if not `Approved`, stop and point to the gates. Then maps each section to implementation:

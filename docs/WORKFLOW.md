@@ -59,13 +59,13 @@ Everything else is an **escalation the pipeline surfaces — never a knob you pr
 |---|---|---|---|---|
 | 1 | Discovery | `superpowers:brainstorming` | nothing — chat only | — |
 | 2 | Approach Brief | `@architect` | inline in chat (feature) · `docs/briefs/<t>.md` (system, open-design) | **Gate A** on file briefs — `/aa-approach-review` |
-| 2.5 | Decompose | `@architect` | `docs/plan/<t>-taskmap.md`, only if multi-spec | ungated below system scale |
+| 2.5 | Decompose | `@architect` | `docs/plan/<t>-plan.md` (Feature Plan), only if multi-spec | ungated below system scale |
 | 3 | Full spec | `@architect` | `docs/specs/<t>.md` [Draft] | **Gate B** — `/aa-spec-review` |
 | 4 | Build | `@builder` | code + tests + Build Report | refuses unless `Status: Approved` |
 | 5 | Review | you commit, then `@reviewer` | Pass 1 spec compliance · Pass 2 `/code-review` | SHIP IT / NEEDS WORK / BLOCKER |
 | 6 | Ship (on request) | `superpowers:finishing-a-development-branch` + `gh-ops`/`glab-ops` | branch merged | — |
 
-Specs are written **just in time**, one at a time, even when a Task Map exists.
+Specs are written **just in time**, one at a time, even when a Feature Plan exists.
 
 ### The same path as a conversation
 
@@ -162,11 +162,13 @@ Starting from fuzzy needs? Run `/aa-requirements` first for a gated EARS require
 
 **Decomposition lives inside the Architect.** You do **not** split work up front. Hand a feature over; it designs the brief, then decides **one spec or many**. Most features are one spec.
 
-**The decision rule — "can one spec hold it?"** — is the [unit contract](#the-unit-contract) applied. Fits → one spec. Doesn't → the Architect decomposes into a **Task Map** (`docs/plan/<f>-taskmap.md`), produced *after* the design and ungated below system scale. Unsure → hand it up anyway. **Don't pre-split out of caution.**
+**The decision rule — "can one spec hold it?"** — is the [unit contract](#the-unit-contract) applied. Fits → one spec. Doesn't → the Architect decomposes into a **Feature Plan** (`docs/plan/<f>-plan.md`), produced *after* the design and ungated below system scale. Unsure → hand it up anyway. **Don't pre-split out of caution.**
+
+A Feature Plan is more than a task table — it designs the feature **as a system** before it's built as tasks: a **Flow** section narrating how the pieces run together at runtime, **Stages** that group tasks so each ends demonstrable (closed by an integration-checkpoint task proving the flow actually runs), and **Seam Contracts** — the interfaces two tasks share, frozen in the plan so just-in-time specs written weeks apart can't drift. Specs copy their seams from the plan verbatim; Gate B blocks a spec that contradicts one.
 
 ```mermaid
 flowchart LR
-    BR["Approach Brief<br/>one design for the whole feature"] --> TM["Task Map<br/>docs/plan/reports-export-taskmap.md"]
+    BR["Approach Brief<br/>one design for the whole feature"] --> TM["Feature Plan<br/>flow · stages · seam contracts<br/>docs/plan/reports-export-plan.md"]
 
     TM --> T01["<b>T01</b> export job + storage<br/>Depends-on: —"]
     TM --> T02["<b>T02</b> trigger/poll API<br/>Depends-on: T01"]
@@ -180,15 +182,19 @@ flowchart LR
     T02 --> S2["spec → Gate B → build → review"]
     T03 --> S3["spec → Gate B → build → review"]
 
+    S2 --> T04["<b>T04</b> integration checkpoint<br/>stage's flow runs end-to-end"]
+    S3 --> T04
+    T04 --> S4["task path — build → review<br/>(no spec)"]
+
     classDef art fill:#f1f5f9,stroke:#64748b,stroke-width:1.5px,color:#0f172a
     classDef task fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px,color:#0f172a
     classDef run fill:#dcfce7,stroke:#16a34a,stroke-width:1.5px,color:#0f172a
     class BR,TM art
-    class T01,T02,T03 task
-    class S1,S2,S3 run
+    class T01,T02,T03,T04 task
+    class S1,S2,S3,S4 run
 ```
 
-**You schedule; the map coordinates.** There is no orchestrator. Pick the next `pending` task whose `Depends-on` are `complete` → the Architect writes that spec just in time → Gate B → build → review → update the row. Mirror the rows into your session's native to-do list if you want a live board: the markdown map is the **durable ledger** (survives context resets), the to-do list is the **disposable view**.
+**You schedule; the plan coordinates.** There is no orchestrator. Pick the next `pending` task whose `Depends-on` are `complete` → the Architect writes that spec just in time → Gate B → build → review → update the row. Mirror the rows into your session's native to-do list if you want a live board: the markdown plan is the **durable ledger** (survives context resets), the to-do list is the **disposable view**.
 
 **Parallelize `[P]` tasks.** They share no files and no dependencies — build them concurrently in separate worktrees (`superpowers:using-git-worktrees` + `superpowers:dispatching-parallel-agents`). On 2–3 independent specs this roughly **halves** wall-clock, and each still passes its own Gate B and review.
 
@@ -219,7 +225,7 @@ Acceptance criteria:
 
 → Architect runs Discovery + Research, writes `docs/briefs/order-outbox.md` [Draft].
 → `/aa-approach-review docs/briefs/order-outbox.md` — Gate A, **mandatory for system changes** → PASS.
-→ Architect decides *"this decomposes into 3 specs"* → writes `docs/plan/order-outbox-taskmap.md` and offers the coverage audit.
+→ Architect decides *"this decomposes into 3 specs"* → writes `docs/plan/order-outbox-plan.md` (flow, stages, seam contracts, tasks) and offers the coverage audit.
 → writes the first spec → Gate B **panel** → build → review → you pick the next task.
 
 ### 3. Multi-spec feature
@@ -231,15 +237,16 @@ Bigger than one spec — but you still don't pre-split.
 trigger and poll it, and a download endpoint.
 ```
 
-→ Architect: brief → *"this decomposes into 3 specs"* → `docs/plan/reports-export-taskmap.md`:
+→ Architect: brief → *"this decomposes into 3 specs"* → `docs/plan/reports-export-plan.md`. The plan's **Flow** narrates the runtime path (trigger → job writes CSV to storage → poll reports ready → download streams it); its **Seam Contracts** freeze what the tasks share (the export-status model and the storage key scheme); the tasks land in one stage closed by an integration checkpoint:
 
-| Task | Title | Path | Depends-on | [P] |
-|------|-------|------|-----------|-----|
-| T01  | export job + storage | feature | — | |
-| T02  | trigger/poll API | feature | T01 | |
-| T03  | download endpoint | feature | T01 | P |
+| Task | Title | Path | Stage | Depends-on | [P] |
+|------|-------|------|-------|-----------|-----|
+| T01  | export job + storage | feature | S1 | — | |
+| T02  | trigger/poll API | feature | S1 | T01 | |
+| T03  | download endpoint | feature | S1 | T01 | P |
+| T04  | integration checkpoint — trigger→poll→download runs end-to-end | task | S1 | T02, T03 | |
 
-→ writes the spec for T01 now → Gate B → build → review. Then **you** pick T02 — or T03, since it's `[P]`.
+→ writes the spec for T01 now (copying its seams from the plan) → Gate B → build → review. Then **you** pick T02 — or T03, since it's `[P]`.
 
 ### 4. Fuzzy, multi-piece need
 
@@ -255,7 +262,7 @@ The need is a paragraph, not crisp criteria yet.
 @architect Design autosave from docs/requirements/autosave.md
 ```
 
-→ Architect reads the `R#`s, writes the brief, decides one-spec-or-many, and produces a Task Map whose tasks cite the `R#`s. Traceability then runs `R#` → task → spec → test → review.
+→ Architect reads the `R#`s, writes the brief, decides one-spec-or-many, and produces a Feature Plan whose tasks cite the `R#`s. Traceability then runs `R#` → task → spec → test → review.
 
 ## Reference
 
