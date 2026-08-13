@@ -42,7 +42,7 @@ The thesis in one line: **the failure mode of agentic coding isn't capability, i
 ## 4. Plugin architecture
 
 ```mermaid
-flowchart LR
+flowchart TB
     subgraph OWN["OWNED — the governance layer"]
         direction TB
         AG["<b>agents/</b><br/>architect (opus) · builder (sonnet) · reviewer (sonnet)"]

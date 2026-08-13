@@ -17,14 +17,14 @@ Work arrives at any maturity — a paragraph, a ticket, a half-decided design, a
 **Question 1 — where does it enter?** (maturity: what's the first missing artifact)
 
 ```mermaid
-flowchart LR
-    S["Work arrives —<br/>at any maturity"] --> Q0{"is the need itself<br/>still fuzzy?"}
-    Q0 -->|Yes| RQ["<b>/requirements</b><br/>pin down the<br/>what/why first"]
+flowchart TD
+    S["Work arrives — at any maturity"] --> Q0{"is the need itself<br/>still fuzzy?"}
+    Q0 -->|Yes| RQ["<b>/requirements</b><br/>pin down the what/why first"]
     RQ --> Q1
     Q0 -->|No| Q1{"does behavior<br/>change?"}
-    Q1 -->|No| C["<b>Chore</b> — direct chat<br/>no pipeline, no artifacts"]
+    Q1 -->|No| C["<b>Chore</b><br/>direct chat · no pipeline"]
     Q1 -->|Yes| Q2{"clear criteria, ≲3 files,<br/>no design questions?"}
-    Q2 -->|Yes| TK["<b>Task</b> — @builder inline<br/>TDD · no spec · no gates"]
+    Q2 -->|Yes| TK["<b>Task</b><br/><b>@builder</b> inline<br/>TDD · no spec · no gates"]
     Q2 -->|"No — or unsure"| AR["<b>@architect</b><br/>diagnoses entry + rigor<br/>designs · splits into units"]
 
     classDef q fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#0f172a

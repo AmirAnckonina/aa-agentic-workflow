@@ -32,22 +32,21 @@ The usual answer is a better prompt. That doesn't scale — the failure isn't ph
 This plugin adds an **SDLC pipeline with enforced approval gates** to Claude Code. Design is a separate stage from implementation, performed by a separate agent, and challenged by independent reviewers who never see the designer's reasoning. Nothing gets built from an unapproved spec — and that's enforced by the harness, not by asking the model nicely.
 
 ```mermaid
-flowchart LR
+flowchart TD
     N["Raw need"] --> AR["<b>@architect</b><br/>designs the approach"]
-    N -.->|fuzzy?| R["<b>/requirements</b><br/>optional front stage"]
-    R -.-> AR
+    R["<b>/requirements</b><br/>optional front stage"] -.->|"EARS criteria · R# IDs"| AR
 
-    AR -->|"Approach Brief<br/>~1 page"| GA{"<b>Gate A</b><br/>/approach-review<br/>right way to build it?"}
+    AR -->|"Approach Brief · ~1 page"| GA{"<b>Gate A</b><br/><b>/approach-review</b><br/>right way to build it?"}
     GA -->|RETHINK| AR
 
-    GA -->|PASS| SP["Spec<br/>docs/specs/"]
-    AR -.->|"standard feature:<br/>inline brief, Gate A waived"| SP
+    GA -->|PASS| SP["Spec · docs/specs/"]
+    AR -.->|"standard feature:<br/>inline brief · waiver recorded"| SP
 
-    SP --> GB{"<b>Gate B</b><br/>/spec-review<br/>safe to build from?"}
+    SP --> GB{"<b>Gate B</b><br/><b>/spec-review</b><br/>safe to build from?"}
     GB -->|Blocking| SP
 
-    GB -->|Approved| BD["<b>@builder</b><br/>TDD · refuses<br/>unapproved specs"]
-    BD --> RV["<b>@reviewer</b><br/>Pass 1 spec compliance<br/>Pass 2 /code-review"]
+    GB -->|Approved| BD["<b>@builder</b><br/>TDD · refuses unapproved specs"]
+    BD --> RV["<b>@reviewer</b><br/>Pass 1 · spec compliance<br/>Pass 2 · /code-review"]
     RV -->|NEEDS WORK| BD
     RV -->|SHIP IT| SH["Ship"]
 
