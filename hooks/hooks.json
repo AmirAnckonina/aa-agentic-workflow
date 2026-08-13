@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "T=\"${CLAUDE_PLUGIN_ROOT}/scripts/aa-telemetry.sh\"; [ -x \"$T\" ] || exit 0; exec \"$T\" gate"
+          }
+        ]
+      }
+    ]
+  }
+}

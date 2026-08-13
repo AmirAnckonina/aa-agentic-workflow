@@ -6,7 +6,7 @@
 
 Agents don't write code until a spec exists, an independent reviewer has audited it, and you've said go.
 
-[![Version](https://img.shields.io/badge/version-0.8.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.0-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8A63D2)](https://docs.claude.com/en/docs/claude-code)
 [![Requires: Superpowers](https://img.shields.io/badge/requires-superpowers-orange)](https://github.com/obra/superpowers)
@@ -153,11 +153,14 @@ Gate B caught it **before a line of code existed**. The spec gets one revision, 
 agents/     architect (opus) · builder (sonnet) · reviewer (sonnet)
 skills/     spec-format · architect-methodology · decomposition · requirements-composition
             approach-review (Gate A) · spec-review (Gate B) · coding-standards
-commands/   /requirements · /review-internal
+commands/   /requirements · /review-internal · /aa-report
+scripts/    aa-telemetry (hook-driven event recorder) · aa-report (aggregator)
 docs/       GETTING-STARTED · WORKFLOW · DESIGN
 ```
 
 Two structural guarantees are enforced by `PreToolUse` hooks rather than prompt text: the Builder cannot edit implementation files when the matched spec isn't `Approved` (**spec-gate**), and the Builder cannot commit, push, merge, or rebase (**git-guard**) — commits stay a human action so the Reviewer always has a real diff to review. Both fail open if `jq` is missing.
+
+The same hook machinery records **local-only telemetry**: every stage completion and gate run appends one JSON line to the target repo's `.aa-workflow/runs/`, and `/aa-report` turns it into per-feature evidence — stages, gate rounds and verdicts, token usage by model. Fail-open by contract, opt-out with `AA_TELEMETRY_OFF=1`.
 
 ## Where to go next
 

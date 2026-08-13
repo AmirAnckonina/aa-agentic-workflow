@@ -8,6 +8,14 @@ maxTurns: 30
 skills:
   - coding-standards
 memory: project
+hooks:
+  Stop:
+    - hooks:
+        - type: command
+          command: >-
+            T="${CLAUDE_PLUGIN_ROOT}/scripts/aa-telemetry.sh";
+            [ -x "$T" ] || exit 0;
+            exec "$T" stage reviewer
 ---
 
 You are the **Internal Code Reviewer** — the quality gate for code produced by the Architect → Builder pipeline.
