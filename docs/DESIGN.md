@@ -102,57 +102,48 @@ The spec's front matter links its brief. Gate B verifies that brief is `Approach
 
 ### 6.1 Two gates, not one
 
-A single review gate has to choose an altitude. Placed early it can't audit details that don't exist yet; placed late it discovers strategic problems after a full spec is written. Splitting it lets each gate ask exactly one question at the moment that question is cheapest to answer:
+A single review gate has to choose an altitude. Placed early it can't audit details that don't exist yet; placed late it discovers strategic problems after a full spec is written. Splitting it lets each gate ask one question at the moment that question is cheapest to answer: **Gate A** asks *is this the right way?* and failure costs one revised page; **Gate B** asks *is this safe to build from?* and failure costs one revised spec, still with no code written.
 
-- **Gate A** asks *is this the right way?* — failure costs one revised page.
-- **Gate B** asks *is this safe to build from?* — failure costs one revised spec, still with no code written.
-
-The economics are the whole argument. Everything downstream of a decision inherits its cost, so the challenge belongs upstream.
+Everything downstream of a decision inherits its cost, so the challenge belongs upstream. That's the whole argument.
 
 ### 6.2 Fresh context for reviewers
 
-Gate auditors and the Reviewer never inherit the producing agent's conversation. An agent that saw the reasoning tends to validate it — reviewing your own work is not review, and this holds for models at least as strongly as for people. Auditors read the artifact and the codebase, nothing else.
+Gate auditors and the Reviewer never inherit the producing agent's conversation. An agent that saw the reasoning tends to validate it — reviewing your own work is not review, and this holds for models at least as strongly as for people.
 
-The corollary: Gate B auditors *do* read Gate A's outcome, specifically so they don't re-litigate settled strategic concerns as fresh suggestions. Independence is about not inheriting reasoning, not about withholding conclusions.
+The corollary: Gate B auditors *do* read Gate A's **outcome**, so they don't re-litigate settled concerns as fresh suggestions. Independence means not inheriting reasoning, not withholding conclusions.
 
 ### 6.3 Structural enforcement over prompt adherence
 
-The two load-bearing Builder invariants are `PreToolUse` hooks, not instructions:
+A rule that matters shouldn't depend on the model choosing to follow it, so the two load-bearing Builder invariants are `PreToolUse` hooks:
 
 - **spec-gate** — blocks `Write`/`Edit` on implementation files when the branch's matched spec isn't `Approved`. `docs/` edits always pass; `AA_GATE_OFF=1` bypasses deliberately.
 - **git-guard** — blocks `git commit`/`push`/`merge`/`rebase`/`reset`/`checkout -b`. Read-only git still works, and the guard is Builder-scoped, so a human's own commits are unaffected.
 
-A rule that matters should not depend on the model choosing to follow it. Both hooks **fail open** at every external step — a missing `jq` or a non-git directory degrades to the unenforced path rather than bricking the pipeline.
-
-The git-guard has a second purpose beyond enforcement: because the Builder cannot commit, committing is always a human action, which guarantees the Reviewer has a real branch diff instead of an ambiguous working tree.
+Both **fail open** at every external step — a missing `jq` degrades to the unenforced path rather than bricking the pipeline. The git-guard also has a second purpose: because the Builder cannot commit, committing is always a human action, which guarantees the Reviewer a real branch diff instead of an ambiguous working tree.
 
 ### 6.4 Proportional process
 
-Uniform rigor is the reason heavyweight processes get abandoned — pay T3 costs on a typo often enough and the whole thing gets bypassed. So the pipeline scales cost to risk along three independent axes: **tier** (T0–T3), **Gate B breadth** (skip / lite / panel), and **model tier** (Sonnet for mechanical stages, Opus for design-critical ones).
+Uniform rigor is why heavyweight processes get abandoned — pay T3 costs on a typo often enough and the whole thing gets bypassed. So cost scales to risk along three axes: **tier** (T0–T3), **Gate B breadth** (skip / lite / panel), and **model tier** (Sonnet for mechanical stages, Opus for design-critical ones).
 
-Two guardrails keep the cheap path honest. **Promotion:** any stage that surfaces a genuine design question stops and escalates rather than improvising — a T1 Builder recommends T2, a fast-track Architect promotes to a full brief plus Gate A. **Escalation:** a lite Gate B auditor that finds real risk recommends re-running the panel. The system is allowed to be cheap precisely because it is designed to notice when it shouldn't be.
+Two guardrails keep the cheap path honest. **Promotion:** any stage that surfaces a genuine design question escalates rather than improvising. **Escalation:** a lite Gate B auditor that finds real risk recommends the panel. The system is allowed to be cheap precisely because it notices when it shouldn't be.
 
-Note what is deliberately *not* scaled down: Gate B keeps full Opus depth at both tiers. Lite is cheaper by **breadth** — a focused perspective set and one auditor instead of five — never by reasoning quality. It's the last check before code exists.
+What is deliberately *not* scaled down: Gate B keeps full Opus depth at both tiers. Lite is cheaper by breadth, never by reasoning quality.
 
 ### 6.5 Explicit context contract
 
-Subagents not inheriting `CLAUDE.md` is a platform constraint. Rather than working around it, the design leans into it: each target repo may declare `docs/agentic-context.md`, every stage reads it at Step 0, and every stage's output opens with `Context loaded: <list>`.
-
-This converts an invisible failure ("the agent didn't know about our conventions") into a visible, checkable line of output. Skills invoked *from* a stage inherit that stage's conversation, so they operate on the same loaded context with no extra wiring.
+Subagents not inheriting `CLAUDE.md` is a platform constraint the design leans into rather than works around: each repo may declare `docs/agentic-context.md`, every stage reads it at Step 0 and opens its output with `Context loaded: <list>`. This converts an invisible failure — *the agent didn't know about our conventions* — into a checkable line of output.
 
 ### 6.6 Spec-then-tasks, decomposition inside the Architect
 
-**Research grounding.** Three passes over Spec Kit, Kiro, OpenSpec, Taskmaster, BMAD, and Anthropic's own guidance found unanimous convergence on **spec-then-tasks**: a *feature-level* design comes first, and tasks are derived from it afterward by a **cheap step run by the same agent**. A separate role and gate for decomposition only earns its keep at team scale. One spec maps to many tasks; a task is roughly one independently testable unit.
+Three research passes over Spec Kit, Kiro, OpenSpec, Taskmaster, BMAD, and Anthropic's own guidance found unanimous convergence on **spec-then-tasks**: a feature-level design comes first, and tasks are derived from it afterward by a cheap step run by the same agent. A separate role and gate for decomposition only earns its keep at team scale.
 
-The inverse — a gated decomposition front stage producing one spec per task — was built as a draft and **rejected**: it is the one model none of the surveyed tools use, and it invites the "waterfall in markdown" failure mode.
-
-For solo and fast work the consensus is **keep the artifact, drop the gate**, so decomposition is ungated for T1/T2 with an optional T3 coverage audit. The approach was already challenged at Gate A; the split is a derivative of an approved design.
+The inverse — a gated decomposition front stage producing one spec per task — was built as a draft and **rejected**: it's the one model none of the surveyed tools use, and it invites the "waterfall in markdown" failure mode. For solo work the consensus is **keep the artifact, drop the gate**, so decomposition is ungated for T1/T2. The approach was already challenged at Gate A; the split is a derivative of an approved design.
 
 ### 6.7 No orchestrator
 
-The Task Map is a **ledger, not a runner**. A human picks the next task whose dependencies are complete; the Architect writes that spec just in time; the existing per-task flow does the rest.
+The Task Map is a **ledger, not a runner**: a human picks the next task whose dependencies are complete, the Architect writes that spec just in time, and the per-task flow does the rest.
 
-This is a real decision, not a missing feature. An auto-runner would have to make scheduling judgments across a partially-built system with no gate of its own — precisely the class of decision the rest of the design routes to a human. Specs are durable; context is disposable. Writing specs just in time keeps the design honest against a codebase that has moved since the brief.
+This is a decision, not a missing feature. An auto-runner would have to make scheduling judgments across a partially-built system with no gate of its own — precisely the class of decision the rest of the design routes to a human. And writing specs just in time keeps the design honest against a codebase that has moved since the brief.
 
 ### 6.8 The Reviewer split
 
@@ -181,11 +172,7 @@ aa-agentic-workflow/
 └── README.md
 ```
 
-**Distribution.** The repo is its own marketplace (`marketplace.json`, name `aa`, source `"."`), so it installs in two commands. `superpowers` is declared in the manifest's `dependencies` and resolves from the official marketplace, so installation pulls it automatically; the Step-0 skill check in each agent remains as a safety net.
-
-**Dev loop.** `claude --plugin-dir <repo>` loads it live with no install — edits take effect immediately (`/reload-plugins` for skills, restart for agents and commands). Installing from a local marketplace path is the alternative, refreshed by a version bump plus `claude plugin update`. The two are mutually exclusive.
-
-**Versioning.** The version is pinned in `plugin.json`, so updates ship on deliberate bumps rather than on every commit.
+The repo is its own marketplace (`marketplace.json`, name `aa`, source `"."`), so it installs in two commands, and the version is pinned in `plugin.json` so updates ship on deliberate bumps rather than every commit. `superpowers` is declared in the manifest's `dependencies` and resolves from the official marketplace; the Step-0 skill check in each agent remains as a safety net. Install and dev-loop mechanics are in [GETTING-STARTED](GETTING-STARTED.md).
 
 ## 8. Future slots
 

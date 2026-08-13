@@ -71,15 +71,9 @@ Create `docs/agentic-context.md` at the root of the repo you're working in:
 - Related repos: ../shared-protos (read-only)
 ```
 
-Every stage then begins its output with a line like:
+Every stage then opens its output with `Context loaded: <list>` — your verification it worked from the right material. **No manifest is fine**; stages fall back to `CLAUDE.md` plus a `docs/` scan and say so.
 
-```text
-Context loaded: docs/agentic-context.md, docs/ARCHITECTURE.md, CLAUDE.md, docs/domain/billing.md
-```
-
-That line is your verification the stage worked from the right material. **No manifest is fine** — stages fall back to `CLAUDE.md` plus a `docs/` scan and say so explicitly.
-
-The optional `Review rules` entry is worth knowing about: point it at a file of past incidents, tribal knowledge, and hard-won conventions, and the Reviewer injects those rules into its quality pass.
+The `Review rules` entry is worth knowing about: point it at a file of past incidents and hard-won conventions, and the Reviewer injects those rules into its quality pass.
 
 ## 4. Your first feature, end to end
 
@@ -105,9 +99,9 @@ Inline brief — token bucket per API key, in-process, 100 req/min.
 Approve the approach?
 ```
 
-Your nod is the approval. Gate A is waived and the waiver is **recorded** in the spec's `Brief:` line — never silently skipped. The Architect then writes `docs/specs/logs-rate-limit.md` with `Status: Draft` and stops at the Gate B question.
+Your nod approves it. The waiver is **recorded** in the spec's `Brief:` line — never silently skipped — and the Architect writes `docs/specs/logs-rate-limit.md` [Draft], then stops at the Gate B question.
 
-> If a genuine design question surfaces while it writes the spec, it **stops** and promotes the work to a real brief file plus Gate A. Accept the promotion — that's the system working, not stalling.
+> If a genuine design question surfaces while it writes the spec, it **stops** and promotes the work to a real brief plus Gate A. Accept the promotion — that's the system working, not stalling.
 
 ### Step 2 — Gate B
 
@@ -115,9 +109,7 @@ Your nod is the approval. Gate A is waived and the waiver is **recorded** in the
 /spec-review docs/specs/logs-rate-limit.md
 ```
 
-One fresh-context Opus auditor runs the perspectives the spec's surface actually triggers (Completeness and Scope always, plus Security here because there's an auth surface). Verdict is **Approved** — which flips the spec's status — or **Blocking**, which sends it back to `Draft` with specific findings.
-
-Nothing is built until this passes.
+One fresh-context auditor runs the perspectives this spec's surface triggers. **Approved** flips the status; **Blocking** returns it to `Draft` with specific findings. Nothing is built until it passes.
 
 ### Step 3 — build
 
@@ -125,7 +117,7 @@ Nothing is built until this passes.
 @builder Implement docs/specs/logs-rate-limit.md
 ```
 
-The Builder checks `Status: Approved` before anything else and refuses otherwise. It then works strictly test-first via `superpowers:test-driven-development` and finishes with a Build Report containing an **AC → Test map** — every acceptance criterion paired with the test that proves it.
+Checks `Status: Approved`, then works test-first via `superpowers:test-driven-development`. Finishes with a Build Report containing an **AC → Test map**.
 
 ### Step 4 — commit
 
@@ -133,7 +125,7 @@ The Builder checks `Status: Approved` before anything else and refuses otherwise
 git checkout -b feature/logs-rate-limit && git add -A && git commit -m "Add per-key rate limiting to POST /logs"
 ```
 
-**The Builder never commits** — a `git-guard` hook blocks it structurally. This is intentional: commits stay a human action, and it guarantees the Reviewer has a real branch diff to review. Do it yourself, or ask the main session to.
+The Builder can't do this — `git-guard` blocks it — so commit yourself or ask the main session to. That's what guarantees the Reviewer a real branch diff.
 
 ### Step 5 — review
 
@@ -141,9 +133,7 @@ git checkout -b feature/logs-rate-limit && git add -A && git commit -m "Add per-
 /review-internal
 ```
 
-Two passes. **Pass 1** is the moat: a mechanical per-AC compliance table of code against the Approved spec — every criterion covered by a test, interfaces matching, no unspecified behavior smuggled in, no section silently unimplemented. **Pass 2** delegates to the built-in `/code-review` (plus `/security-review` when the diff touches auth, input handling, or secrets).
-
-The verdict is **SHIP IT**, **NEEDS WORK**, or **BLOCKER**. The terminal report is the deliverable.
+**Pass 1** is a mechanical per-AC compliance table of the code against the Approved spec. **Pass 2** delegates to `/code-review`, adding `/security-review` when the diff touches auth, input handling, or secrets. Verdict: **SHIP IT**, **NEEDS WORK**, or **BLOCKER**.
 
 ### Step 6 — ship (on request)
 

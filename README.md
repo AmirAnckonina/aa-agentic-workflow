@@ -88,13 +88,13 @@ Both are review checkpoints run by **fresh-context reviewers** — they never in
 | Asks | *Is this the right way to build it?* | *Is this complete and safe to build from?* |
 | Method | 3–5 hard questions as an experienced CTO | up to 5 independent audits: Security · Scalability · API Design · Completeness · Scope |
 | Verdict | PASS → `Approach-Approved` · RETHINK → `Draft` | Approved → Builder unlocked · Blocking → `Draft` |
-| Cost of failing | one revised page | one revised spec — still no code written |
+| Failure costs | one revised page | one revised spec — still no code written |
 
-**Cheap before expensive:** the strategic challenge happens while rework is a page. Detail auditing only happens on an approach that already survived.
+**Cheap before expensive:** the strategic challenge happens while rework is a page; detail auditing only runs on an approach that already survived.
 
 ### Which gates run, by size of work
 
-You never pre-select this. The Architect proposes a tier and you confirm or override.
+The Architect proposes a tier; you confirm or override.
 
 | Tier | What it is | Gate A | Gate B |
 |---|---|---|---|
