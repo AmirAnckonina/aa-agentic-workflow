@@ -2,6 +2,18 @@
 
 All notable changes to `aa-agentic-workflow`. Format loosely follows [Keep a Changelog](https://keepachangelog.com/); versions track `plugin.json`.
 
+## [0.11.0] — 2026-08-14
+
+**Staged planning + lighter specs** — multi-spec features get a system-level plan (flow, stages, frozen seam contracts) between the brief and the specs, and spec weight becomes conditional. Closes the pipeline's structural gap: there was previously nothing between a one-page brief and per-spec detail.
+
+### Added
+- **Feature Plan** (`docs/plan/<f>-plan.md`, replaces the Task Map): the multi-spec artifact now designs the feature *as a system* before it's built as tasks — a **Flow** section (how the pieces run together at runtime), **Stages** grouping tasks so each ends demonstrable (closed by an integration-checkpoint task that proves the flow runs end-to-end), and **Seam Contracts**: interfaces shared by two tasks, frozen in the plan so just-in-time specs written weeks apart can't drift. Specs link the plan via a new `**Plan:**` line and copy their seams verbatim; a Gate B auditor blocks a spec that contradicts a frozen seam. Still ungated below system scale; the system-change coverage audit now also checks seam coverage.
+- `decomposition` gains flow-first method: narrate the runtime path, derive seams from it, prefer vertical slices / walking skeleton over layer-by-layer ordering.
+
+### Changed
+- **Conditional spec sections**: Security Considerations, Failure Modes, and Component Responsibilities carry content only when a written trigger fires (auth/untrusted input/secrets · external dependency/partial failure · >1 component); otherwise `N/A — reason` is the *expected* value, not a shortcut. Headings stay (structure remains greppable; Builder/Reviewer contracts unchanged); Gate B audits the reason, never the absence.
+- The Architect's "no Phase 2" rule now exempts Feature Plan Stages — committed, tabled work is planning, not speculation.
+
 ## [0.10.0] — 2026-08-14
 
 **Focused, quiet Gate B** — the spec review reports findings, not coverage, and repos can declare their own spec standards. Noise was the gate's biggest cost; this release attacks it directly while keeping the quality moat (fresh-context Opus auditors, Status-is-law) intact.
