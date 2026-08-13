@@ -36,7 +36,7 @@ hooks:
             [ -z "$SPEC" ] && exit 0;
             ST=$(grep -m1 -E '^\*\*Status:\*\*' "$SPEC" | sed -E 's/^\*\*Status:\*\*[[:space:]]*//; s/[[:space:]]*$//');
             case "$ST" in Approved*) exit 0 ;; esac;
-            echo "BLOCKED by builder spec-gate: $(basename "$SPEC") Status is '${ST:-unknown}', not Approved (matched because $HOW). Implementation stays blocked until a gate approves the spec — run /spec-review (or /approach-review) first. Wrong spec matched, or intentional pre-work? Re-run with AA_GATE_OFF=1." >&2;
+            echo "BLOCKED by builder spec-gate: $(basename "$SPEC") Status is '${ST:-unknown}', not Approved (matched because $HOW). Implementation stays blocked until a gate approves the spec — run /aa-spec-review (or /aa-approach-review) first. Wrong spec matched, or intentional pre-work? Re-run with AA_GATE_OFF=1." >&2;
             exit 2
     - matcher: "Bash"
       hooks:
@@ -60,7 +60,7 @@ Every time you receive a task:
 3. Read `.claude/context.md` if it exists (session-specific context).
 4. Identify the language/framework from the repo structure and config files.
 5. Locate the Architect's spec (check the repo's `docs/specs/` — legacy specs may sit in `docs/` root — or the task description).
-6. **Check the spec's `**Status:**` field.** If it is not `Approved`, STOP — implementation cannot start. Report the current status and point the user to the gates (`/approach-review`, `/spec-review`). Exception: an inline task description given directly by the user acts as an approved mini-spec (task mode, below). _(A PreToolUse hook enforces this structurally: `Write`/`Edit` to non-`docs/` files is blocked while the branch's matched spec is un-`Approved` — fail-open, and bypassable with `AA_GATE_OFF=1` for deliberate pre-work.)_
+6. **Check the spec's `**Status:**` field.** If it is not `Approved`, STOP — implementation cannot start. Report the current status and point the user to the gates (`/aa-approach-review`, `/aa-spec-review`). Exception: an inline task description given directly by the user acts as an approved mini-spec (task mode, below). _(A PreToolUse hook enforces this structurally: `Write`/`Edit` to non-`docs/` files is blocked while the branch's matched spec is un-`Approved` — fail-open, and bypassable with `AA_GATE_OFF=1` for deliberate pre-work.)_
 7. **Validate spec against codebase.** Before writing any code, verify that paths, packages, interfaces, and route patterns referenced in the spec actually exist. If anything doesn't match, STOP and flag it — do not invent or assume.
 8. **Your first user-facing output must begin with a `Context loaded: <list>` line.**
 

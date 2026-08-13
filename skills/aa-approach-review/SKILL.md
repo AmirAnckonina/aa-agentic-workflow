@@ -1,5 +1,5 @@
 ---
-name: approach-review
+name: aa-approach-review
 description: >
   Use when an Approach Brief needs its strategic challenge before the full spec is written —
   "approach review", "challenge the approach", "is this the right way to build it".
@@ -20,7 +20,7 @@ Your job is to ask: **"Is this the right way to build it — before anyone write
 
 **Position in the pipeline:**
 ```
-Architect (Approach Brief, Draft) → /approach-review (Gate A) → Architect (Full Spec) → /spec-review (Gate B) → Builder
+Architect (Approach Brief, Draft) → /aa-approach-review (Gate A) → Architect (Full Spec) → /aa-spec-review (Gate B) → Builder
                   ↑                        ↓
                   └──── RETHINK ───────────┘  (back to Architect with specific feedback)
 ```
@@ -134,7 +134,7 @@ Context loaded: [files/paths]
 
 ### Next Step
 [If PASS]: Architect writes the full spec (docs/specs/), linking this brief.
-[If RETHINK]: Architect revises the brief, then re-run /approach-review.
+[If RETHINK]: Architect revises the brief, then re-run /aa-approach-review.
 ```
 
 ### Brief File Update
@@ -180,6 +180,6 @@ When the Architect revises after a RETHINK and asks for re-review:
 ## When NOT to Use This Skill
 
 - Standard feature → the Architect presents an inline chat brief, records the waiver, and writes the spec directly
-- You want detail-level checks on a spec (security fields, API shapes) → use `/spec-review`
+- You want detail-level checks on a spec (security fields, API shapes) → use `/aa-spec-review`
 - You want to review implementation code → use the Reviewer agent
 - The brief is already `Approach-Approved` and nothing has changed
