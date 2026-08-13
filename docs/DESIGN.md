@@ -2,7 +2,7 @@
 
 > **You are here:** why the pipeline is built this way. · [README](../README.md) · [Getting started](GETTING-STARTED.md) · [Workflow guide](WORKFLOW.md)
 
-**Owner:** Amir Anckonina · **Current version:** 0.7.0 · Version-by-version history is in the [CHANGELOG](../CHANGELOG.md).
+**Owner:** Amir Anckonina · **Current version:** 0.8.0 · Version-by-version history is in the [CHANGELOG](../CHANGELOG.md).
 
 ---
 
@@ -96,7 +96,7 @@ Full Spec:       Draft → Detail Audit    → Approved          | Blocking → 
 
 Briefs live in the target repo's `docs/briefs/`, specs in `docs/specs/`, Task Maps in `docs/plan/`, requirements in `docs/requirements/` — subdirectories rather than a flat `docs/`, so multi-feature repos stay navigable.
 
-The spec's front matter links its brief. Gate B verifies that brief is `Approach-Approved` — or that Gate A was explicitly waived and recorded, which T3 does not permit. The Builder starts only on `Status: Approved`; T1 inline tasks are exempt because no spec exists for them.
+The spec's front matter links its brief. Gate B verifies that brief is `Approach-Approved` — or that Gate A was explicitly waived and recorded, which a system change does not permit. The Builder starts only on `Status: Approved`; inline tasks are exempt because no spec exists for them.
 
 ## 6. Key decisions
 
@@ -123,11 +123,13 @@ Both **fail open** at every external step — a missing `jq` degrades to the une
 
 ### 6.4 Proportional process
 
-Uniform rigor is why heavyweight processes get abandoned — pay T3 costs on a typo often enough and the whole thing gets bypassed. So cost scales to risk along three axes: **tier** (T0–T3), **Gate B breadth** (skip / lite / panel), and **model tier** (Sonnet for mechanical stages, Opus for design-critical ones).
+Uniform rigor is why heavyweight processes get abandoned — pay system-change costs on a typo often enough and the whole thing gets bypassed. So cost scales to risk along three axes: **path** (chore / task / feature / system change), **Gate B breadth** (skip / lite / panel), and **model tier** (Sonnet for mechanical stages, Opus for design-critical ones).
+
+Routing deliberately separates two questions an earlier design (tier codes `T0–T3`, replaced in 0.8.0) conflated: **where the work enters** — maturity, i.e. what's the first missing artifact, diagnosed by the pipeline because the user often doesn't know what stage their work is in — and **how much rigor it gets** — risk, i.e. blast radius and reversibility. A tiny-but-irreversible migration is low effort, high rigor; a large mechanical refactor is the opposite. One number can't encode both.
 
 Two guardrails keep the cheap path honest. **Promotion:** any stage that surfaces a genuine design question escalates rather than improvising. **Escalation:** a lite Gate B auditor that finds real risk recommends the panel. The system is allowed to be cheap precisely because it notices when it shouldn't be.
 
-What is deliberately *not* scaled down: Gate B keeps full Opus depth at both tiers. Lite is cheaper by breadth, never by reasoning quality.
+What is deliberately *not* scaled down: Gate B keeps full Opus depth on every path. Lite is cheaper by breadth, never by reasoning quality.
 
 ### 6.5 Explicit context contract
 
@@ -137,7 +139,7 @@ Subagents not inheriting `CLAUDE.md` is a platform constraint the design leans i
 
 Three research passes over Spec Kit, Kiro, OpenSpec, Taskmaster, BMAD, and Anthropic's own guidance found unanimous convergence on **spec-then-tasks**: a feature-level design comes first, and tasks are derived from it afterward by a cheap step run by the same agent. A separate role and gate for decomposition only earns its keep at team scale.
 
-The inverse — a gated decomposition front stage producing one spec per task — was built as a draft and **rejected**: it's the one model none of the surveyed tools use, and it invites the "waterfall in markdown" failure mode. For solo work the consensus is **keep the artifact, drop the gate**, so decomposition is ungated for T1/T2. The approach was already challenged at Gate A; the split is a derivative of an approved design.
+The inverse — a gated decomposition front stage producing one spec per task — was built as a draft and **rejected**: it's the one model none of the surveyed tools use, and it invites the "waterfall in markdown" failure mode. For solo work the consensus is **keep the artifact, drop the gate**, so decomposition is ungated below system scale. The approach was already challenged at Gate A; the split is a derivative of an approved design.
 
 ### 6.7 No orchestrator
 
@@ -148,7 +150,7 @@ This is a decision, not a missing feature. An auto-runner would have to make sch
 ### 6.8 The Reviewer split
 
 - **Pass 1 — spec compliance (ours, the moat).** A mechanical check of code against the Approved spec: every acceptance criterion covered by a test, interfaces matching, no unspecified behavior added, no spec section silently unimplemented. Output is a per-AC table.
-- **Pass 2 — quality (delegated).** Invoke `/code-review` at an effort level set by tier (T2 medium, T3 high), plus `/security-review` when the diff touches auth, input handling, or secrets. If the repo's context manifest declares a review-rules file — past incidents, tribal knowledge — those rules are injected into the Pass 2 prompt.
+- **Pass 2 — quality (delegated).** Invoke `/code-review` at an effort level set by path (feature medium, system change high), plus `/security-review` when the diff touches auth, input handling, or secrets. If the repo's context manifest declares a review-rules file — past incidents, tribal knowledge — those rules are injected into the Pass 2 prompt.
 - **Verdict (ours).** SHIP IT / NEEDS WORK / BLOCKER, synthesized from both passes. The terminal report is the deliverable; git actions happen only on explicit request.
 
 Pass 1 is the part no general-purpose reviewer can do, because it requires an approved spec to compare against. That's why the pipeline produces one. Pass 2 is a solved problem, so it is rented — an earlier six-lens review system was deleted outright when `/code-review` made it redundant.

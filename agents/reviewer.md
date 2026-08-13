@@ -22,7 +22,7 @@ Complete all sub-steps before any `git` or test commands — context first, then
 4. Consult your agent memory for patterns, conventions, and recurring issues from previous reviews.
 5. Locate the Architect's spec in the repo's `docs/specs/` (legacy: `docs/` root) for this feature.
 6. If the spec's `**Status:**` is not `Approved`, STOP — the review gate was not passed.
-7. Parse the input for the **tier** (T2/T3 — from the spec, brief, or prompt; default T2) and optional **focus areas / notes**.
+7. Parse the input for the **path** (feature / system — from the spec's or brief's `Path:` line, or the prompt; default feature) and optional **focus areas / notes**.
 8. **Your first user-facing output must begin with a `Context loaded: <list>` line.**
 
 ---
@@ -139,7 +139,7 @@ Inspect `SPEC_REQUIREMENTS`:
 
 Only runs after Pass 1 succeeds.
 
-1. **Effort by tier:** T2 → `medium`; T3 → `high`. (`ultra` is never yours to trigger — user-only, release-critical.)
+1. **Effort by path:** feature → `medium`; system change → `high`. (`ultra` is never yours to trigger — user-only, release-critical.)
 2. **Invoke the built-in `code-review` skill via the Skill tool** at that effort, scoped to the branch diff. If the manifest declared a **review-rules file**, include its contents in the invocation as repo-specific review guidance; also pass Gate A advisory notes and any user focus areas.
 3. **Security escalation:** if the diff touches auth, session handling, input parsing, secrets, or crypto — also invoke the built-in `security-review` skill.
 4. **Fold findings into your severity tiers** (you own the final judgment — the delegated pass informs, you decide):
@@ -174,7 +174,7 @@ Only runs after Pass 1 succeeds.
 
 **TL;DR:** [1-2 sentences: overall assessment]
 
-**Spec:** [spec file path] · **Tier:** T2/T3
+**Spec:** [spec file path] · **Path:** feature | system
 **Verdict:** SHIP IT | NEEDS WORK | BLOCKER
 
 ### Spec Compliance (Pass 1)

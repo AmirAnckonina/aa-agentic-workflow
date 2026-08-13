@@ -6,7 +6,7 @@
 
 Agents don't write code until a spec exists, an independent reviewer has audited it, and you've said go.
 
-[![Version](https://img.shields.io/badge/version-0.7.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.8.0-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8A63D2)](https://docs.claude.com/en/docs/claude-code)
 [![Requires: Superpowers](https://img.shields.io/badge/requires-superpowers-orange)](https://github.com/obra/superpowers)
@@ -65,6 +65,8 @@ flowchart TD
 
 Every stage produces a named artifact with a `Status:` field, and **status is law** — the Builder refuses to touch implementation code unless the spec on disk reads `Approved`.
 
+The pipeline also has a **unit contract**: the build loop consumes only one shape of work — one spec, one cohesive capability (~5–12 acceptance criteria, ≤3 components), reviewable in one cycle. Work can be handed in at **any maturity** — a fuzzy paragraph, a ticket, a half-decided design — and the upstream stages convert it into approved units before anything is built.
+
 ## What it owns, what it rents
 
 The design principle is **own decisions, rent techniques**. This plugin owns the governance layer and nothing else — every generic capability is delegated to its upstream owner, so there's no duplicated prose to maintain.
@@ -92,17 +94,17 @@ Both are review checkpoints run by **fresh-context reviewers** — they never in
 
 **Cheap before expensive:** the strategic challenge happens while rework is a page; detail auditing only runs on an approach that already survived.
 
-### Which gates run, by size of work
+### Which gates run, by risk of work
 
-The Architect proposes a tier; you confirm or override.
+The Architect diagnoses where the work enters and how much rigor it deserves; you confirm or override.
 
-| Tier | What it is | Gate A | Gate B |
+| Path | What it is | Gate A | Gate B |
 |---|---|---|---|
-| **T0** | typo, config tweak, no behavior change | — direct chat, no pipeline | — |
-| **T1** | bounded task, ≲3 files, clear criteria | — straight to `@builder` | — no spec exists |
-| **T2** | a feature — new behavior, single service | **waived** — inline brief in chat, waiver recorded | **lite** — 1 auditor, focused perspectives |
-| **T2 open-design** | 2+ viable approaches, new dependency, contract change | **runs** | lite |
-| **T3** | cross-service, migration, new infra, irreversible | **mandatory — not waivable** | **panel** — 5 parallel auditors |
+| **Chore** | typo, config tweak, no behavior change | — direct chat, no pipeline | — |
+| **Task** | bounded, ≲3 files, clear criteria | — straight to `@builder` | — no spec exists |
+| **Feature** | new behavior, single service | **waived** — inline brief in chat, waiver recorded | **lite** — 1 auditor, focused perspectives |
+| **Open-design feature** | 2+ viable approaches, new dependency, contract change | **runs** | lite |
+| **System change** | cross-service, migration, new infra, irreversible | **mandatory — not waivable** | **panel** — 5 parallel auditors |
 
 Note the asymmetry: **Gate A is the waivable one, Gate B isn't.** The fast path compresses ceremony, never the last check before code. And it self-corrects — if a genuine design question surfaces while the spec is being written, the Architect stops and promotes the work to a full brief plus Gate A rather than designing through it.
 
@@ -123,7 +125,7 @@ Full setup, verification, and a first end-to-end run: **[docs/GETTING-STARTED.md
 > @architect Add rate limiting to the POST /logs endpoint.
 
   Context loaded: docs/agentic-context.md, CLAUDE.md, internal/api/logs.go
-  Tier: T2 · track: fast (single service, one viable approach)
+  Standard feature — single service, one viable approach → inline brief, lite spec review.
 
   Inline brief — token bucket per API key, in-process, 100 req/min.
     Rejected: Redis-backed counter — adds an infra dependency for
@@ -139,7 +141,7 @@ Full setup, verification, and a first end-to-end run: **[docs/GETTING-STARTED.md
 
 > /spec-review docs/specs/logs-rate-limit.md
 
-  Gate B mode: lite (T2) — 3 focused perspectives: Completeness, Scope, Security
+  Gate B mode: lite (feature) — 3 focused perspectives: Completeness, Scope, Security
   BLOCKING (Security): AC-4 leaks the remaining quota to unauthenticated
     callers via the 429 body. Return Retry-After only.
   Verdict: Blocking → spec returned to Draft
@@ -164,7 +166,7 @@ Two structural guarantees are enforced by `PreToolUse` hooks rather than prompt 
 | If you want to… | Read |
 |---|---|
 | Install it and run your first feature | [docs/GETTING-STARTED.md](docs/GETTING-STARTED.md) |
-| Drive the pipeline day to day — tiers, gates, multi-spec features | [docs/WORKFLOW.md](docs/WORKFLOW.md) |
+| Drive the pipeline day to day — routing, gates, multi-spec features | [docs/WORKFLOW.md](docs/WORKFLOW.md) |
 | Understand why it's built this way | [docs/DESIGN.md](docs/DESIGN.md) |
 | See what changed between versions | [CHANGELOG.md](CHANGELOG.md) |
 
