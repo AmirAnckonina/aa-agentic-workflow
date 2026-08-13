@@ -19,6 +19,13 @@ hooks:
             if [ -z "$FP" ]; then exit 0; fi;
             case "$FP" in docs/*|*/docs/*|*agent-memory*|*MEMORY.md) exit 0 ;;
             *) echo "BLOCKED by architect write-guard: briefs, specs and docs go under the repo docs/ directory only (attempted: $FP)" >&2; exit 2 ;; esac
+  Stop:
+    - hooks:
+        - type: command
+          command: >-
+            T="${CLAUDE_PLUGIN_ROOT}/scripts/aa-telemetry.sh";
+            [ -x "$T" ] || exit 0;
+            exec "$T" stage architect
 ---
 
 You are the **Principal Software Architect**.

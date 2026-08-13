@@ -2,6 +2,20 @@
 
 All notable changes to `aa-agentic-workflow`. Format loosely follows [Keep a Changelog](https://keepachangelog.com/); versions track `plugin.json`.
 
+## [0.9.0] — 2026-08-13
+
+**Pipeline telemetry** — the pipeline now records its own behavior, structurally and locally. One JSON line per event in the target repo's `.aa-workflow/runs/<YYYY-MM>.jsonl`; nothing transmitted anywhere.
+
+### Added
+- **Stage recorder**: `Stop` hooks in all three agents' frontmatter (auto-converted to `SubagentStop` in subagent runs, so all three run modes are covered) append a `stage_stop` record — agent, branch, matched spec (spec-gate matching logic), verdict parsed from the final message, and cumulative session token usage by model parsed from the transcript.
+- **Gate recorder**: plugin-level `hooks/hooks.json` `PostToolUse` hook on the Skill tool appends a `gate_run` record for `approach-review` / `spec-review` / `review-internal` — mode (lite/panel), verdict, duration.
+- **`/aa-report`** command + `scripts/aa-report.sh`: deterministic per-feature aggregation (stages, gate rounds and verdict trails, pipeline-window token deltas per model), presented by the model with a data-supported "Signals" section.
+- `scripts/` directory, referenced from hooks via `${CLAUDE_PLUGIN_ROOT}`.
+
+### Design stances (recorded in DESIGN §6.9)
+- **Fail-open by contract** — every telemetry failure path exits 0; observability never costs availability. Opt out with `AA_TELEMETRY_OFF=1`.
+- **Tokens are best-effort** — the transcript format is not a stable contract, so records store cumulative snapshots (deltas derived at report time) and degrade to `null` on parse failure. OpenTelemetry export noted as the stable future adapter for org use.
+
 ## [0.8.0] — 2026-08-13
 
 Routing reframed around **maturity + risk** instead of size tiers — the tier codes `T0–T3` are gone from every user-facing surface — and the documentation restructured for external readers. No gate, hook, or artifact-lifecycle behavior changed.

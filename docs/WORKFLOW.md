@@ -267,6 +267,7 @@ The need is a paragraph, not crisp criteria yet.
 
 | I want to… | Do |
 |---|---|
+| See what the pipeline actually did and cost | `/aa-report` (reads `.aa-workflow/runs/`) |
 | Turn a raw need into structured requirements | `/requirements` |
 | Design a feature (the Architect splits it if needed) | `@architect` (or `claude --agent architect`) |
 | Challenge an approach | `/approach-review` on the brief |

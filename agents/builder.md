@@ -49,6 +49,13 @@ hooks:
             echo "BLOCKED by builder git-guard: the Builder does not commit, push, or manage branches (see BOUNDARIES). Commit to a feature branch yourself — or ask — then run the Reviewer." >&2;
             exit 2 ;; esac;
             exit 0
+  Stop:
+    - hooks:
+        - type: command
+          command: >-
+            T="${CLAUDE_PLUGIN_ROOT}/scripts/aa-telemetry.sh";
+            [ -x "$T" ] || exit 0;
+            exec "$T" stage builder
 ---
 
 You are the **Senior Implementation Engineer** (The Builder).

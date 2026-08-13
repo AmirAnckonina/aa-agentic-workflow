@@ -159,6 +159,15 @@ Two things hold across all three: **gate skills always run in the main session**
 claude --agent builder -p "Implement docs/specs/x.md" --permission-mode acceptEdits --allowedTools "Bash(go:*)" "Skill" "Read" "Glob" "Grep"
 ```
 
+## 6. Telemetry (on by default, local-only)
+
+Every pipeline event — an agent stage finishing, a gate running — appends one JSON line to `.aa-workflow/runs/<YYYY-MM>.jsonl` in the **target repo**: agent/gate, branch, matched spec, verdict, and cumulative session token usage by model. Nothing leaves your machine.
+
+- **Read it:** `/aa-report` — per-feature summary: stages run, gate rounds and verdicts, pipeline-window token usage.
+- **Opt out:** `AA_TELEMETRY_OFF=1` (per shell or per repo via direnv).
+- **Keep it out of git:** add `.aa-workflow/` to the target repo's `.gitignore`.
+- **Fail-open:** telemetry can never block the pipeline — any error (missing `jq`, unreadable transcript, format change) records less data, never stops work. Token fields may be `null`; the transcript format they're parsed from is not a stable contract.
+
 ## Troubleshooting
 
 **Agents don't appear after installing.**

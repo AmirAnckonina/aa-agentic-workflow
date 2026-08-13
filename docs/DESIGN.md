@@ -2,7 +2,7 @@
 
 > **You are here:** why the pipeline is built this way. · [README](../README.md) · [Getting started](GETTING-STARTED.md) · [Workflow guide](WORKFLOW.md)
 
-**Owner:** Amir Anckonina · **Current version:** 0.8.0 · Version-by-version history is in the [CHANGELOG](../CHANGELOG.md).
+**Owner:** Amir Anckonina · **Current version:** 0.9.0 · Version-by-version history is in the [CHANGELOG](../CHANGELOG.md).
 
 ---
 
@@ -156,7 +156,13 @@ This is a decision, not a missing feature. An auto-runner would have to make sch
 
 Pass 1 is the part no general-purpose reviewer can do, because it requires an approved spec to compare against. That's why the pipeline produces one. Pass 2 is a solved problem, so it is rented — an earlier six-lens review system was deleted outright when `/code-review` made it redundant.
 
-### 6.9 Traceability spine
+### 6.9 Telemetry: structural capture, fail-open, local-only
+
+The pipeline records its own behavior the same way it enforces its rules — through hooks, not prompt adherence. `Stop` hooks in each agent's frontmatter record stage completions (with verdict parsed from the final message); a plugin-level `PostToolUse` hook on the Skill tool records gate runs. One JSON line per event lands in the target repo's `.aa-workflow/runs/`, and `/aa-report` aggregates it per feature.
+
+Three stances worth recording. **Fail-open is the contract**: telemetry exits 0 on every failure path, because observability must never cost availability. **Token counts are best-effort**: they're parsed from the session transcript, which Claude Code documents as an unstable format — so records store cumulative snapshots (deltas derived at report time) and degrade to `null` on any parse failure, never blocking and never guessing. The stable alternative, OpenTelemetry export, requires running a collector — wrong default for solo use, kept open as a future adapter. **Local-only**: the ledger stays in the repo, gitignored by recommendation; nothing is transmitted.
+
+### 6.10 Traceability spine
 
 `R#` (requirements doc) → Task Map `Requirements` column → spec `**Requirements:**` line → Builder AC → Test map → Reviewer Pass 1 check. A requirement can be followed to the test that proves it. The Pass 1 traceability check is marked IMPORTANT but never blocking — traceability is a navigation aid, and making it a hard gate would punish legitimately untraceable work like exploratory fixes.
 
