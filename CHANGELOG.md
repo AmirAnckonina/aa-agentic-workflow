@@ -2,6 +2,20 @@
 
 All notable changes to `aa-agentic-workflow`. Format loosely follows [Keep a Changelog](https://keepachangelog.com/); versions track `plugin.json`.
 
+## [0.10.0] — 2026-08-14
+
+**Focused, quiet Gate B** — the spec review reports findings, not coverage, and repos can declare their own spec standards. Noise was the gate's biggest cost; this release attacks it directly while keeping the quality moat (fresh-context Opus auditors, Status-is-law) intact.
+
+### Changed
+- **Gate B auditor references rewritten from checklists to charters** (~4,600 → ~1,100 words): each perspective now gets an accountability statement, a short list of non-obvious traps, and an explicit judgment line — instead of "apply every question" against exhaustive enterprise checklists.
+- **Reporting contract for auditors**: findings only, never coverage walkthroughs; hard caps (≤8 findings, ≤3 suggestions, severity-first); no praise sections; a do-not-report list (untriggered generic best practices, conventions the codebase already enforces, Gate A territory, pre-existing issues, N/A sections whose reason holds).
+- **Evidence gate on Blocking**: a blocking finding must articulate the concrete failure it causes in this spec's context *and* why nothing existing covers it — otherwise it downgrades to a suggestion. When in doubt, downgrade.
+- **Gate B orient slimmed**: the dispatching session validates status/brief-line and selects mode; the fresh-context auditors own the deep read — spec, brief, referenced code, *and* the manifest-listed context files, which previously were read only by the dispatcher and reached no auditor.
+- Step 3 cross-perspective check simplified to dedup + contradiction check — the fixed 5-pair matrix is gone.
+
+### Added
+- **Per-repo spec standards** (`docs/spec-standards.md`, or a manifest-declared path): the repo's design non-negotiables, written by the team. The Architect writes briefs/specs *to* it; Gate B injects it verbatim into auditors, where it overrides the generic charters, `[CRITICAL]`-marked standards block unconditionally, and the file is the **only license for convention-level findings**. Missing file → generic charters alone, silently. Format documented in `spec-format`.
+
 ## [0.9.0] — 2026-08-13
 
 **`aa-` command namespacing** — every command and user-invocable skill is now `aa-`-prefixed, so it resolves as `/aa-<name>` without needing the full `aa-agentic-workflow:` plugin prefix.

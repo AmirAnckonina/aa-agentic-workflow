@@ -71,7 +71,7 @@ flowchart TB
 |---|---|---|
 | Spec format & lifecycle | **ours** | `spec-format` skill — the artifact contract |
 | Approach challenge (Gate A) | **ours** | `aa-approach-review` skill |
-| Detail audits (Gate B) | **ours** | `aa-spec-review` skill + 5 perspective checklists |
+| Detail audits (Gate B) | **ours** | `aa-spec-review` skill + 5 perspective charters |
 | Role agents & wiring | **ours** | `agents/architect.md`, `builder.md`, `reviewer.md` |
 | Approved-gate enforcement | **ours** | Builder Step-0 refusal + `PreToolUse` spec-gate hook |
 | Spec-compliance review | **ours** | Reviewer Pass 1 |

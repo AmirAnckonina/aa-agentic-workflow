@@ -6,7 +6,7 @@
 
 Agents don't write code until a spec exists, an independent reviewer has audited it, and you've said go.
 
-[![Version](https://img.shields.io/badge/version-0.9.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.10.0-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8A63D2)](https://docs.claude.com/en/docs/claude-code)
 [![Requires: Superpowers](https://img.shields.io/badge/requires-superpowers-orange)](https://github.com/obra/superpowers)
@@ -91,6 +91,8 @@ Both are review checkpoints run by **fresh-context reviewers** — they never in
 | Failure costs | one revised page | one revised spec — still no code written |
 
 **Cheap before expensive:** the strategic challenge happens while rework is a page; detail auditing only runs on an approach that already survived.
+
+**Signal over noise:** Gate B auditors report findings, not coverage — capped, evidence-gated (a Blocking verdict must articulate the concrete failure and why nothing existing covers it), and forbidden from raising generic best practices the spec's surface doesn't trigger. Declare your repo's design non-negotiables in `docs/spec-standards.md` and the gate audits against *your* rules — beyond the charters' own named traps, that file is the only license for convention-level findings.
 
 ### Which gates run, by risk of work
 
