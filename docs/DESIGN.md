@@ -42,7 +42,7 @@ The thesis in one line: **the failure mode of agentic coding isn't capability, i
 ## 4. Plugin architecture
 
 ```mermaid
-flowchart TB
+flowchart LR
     subgraph OWN["OWNED — the governance layer"]
         direction TB
         AG["<b>agents/</b><br/>architect (opus) · builder (sonnet) · reviewer (sonnet)"]
@@ -52,6 +52,7 @@ flowchart TB
     end
 
     subgraph RENT["RENTED — maintained upstream"]
+        direction TB
         SP["<b>Superpowers</b><br/>test-driven-development · systematic-debugging<br/>verification-before-completion · brainstorming<br/>using-git-worktrees · finishing-a-development-branch"]
         BI["<b>Claude Code built-ins</b><br/>/code-review · /security-review<br/>plan mode · gh-ops / glab-ops"]
     end
