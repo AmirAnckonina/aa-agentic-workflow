@@ -67,6 +67,6 @@ An `Approved` requirements doc is the input to **`@architect`**, which designs t
 
 ## When NOT to use this skill
 
-- You already know the work → skip to `@architect` (T2/T3) or `@builder` (T1).
-- Trivial change (T0/T1) with obvious acceptance criteria → no requirements doc needed.
+- You already know the work → skip to `@architect` (features, system changes) or `@builder` (bounded tasks).
+- A chore or bounded task with obvious acceptance criteria → no requirements doc needed.
 - You want to challenge an *approach* → that's Gate A (`/approach-review`), later and lower.

@@ -6,45 +6,60 @@ The pipeline: *(requirements →)* intake → discovery → approach → **decom
 
 ---
 
-## Routing — the pipeline proposes, you confirm
+## The unit contract
 
-You don't classify work up front. Hand it over; the **Architect proposes** a tier in its first step and you confirm or override.
+The build loop consumes exactly one shape of work: a **unit** — one spec covering one cohesive capability: ~5–12 acceptance criteria, ≤5 interfaces, ≤3 components, reviewable in one cycle. Everything upstream of the Builder exists to convert work of any maturity into approved units; **nothing bigger ever reaches implementation**. The decision rule is *"can one spec hold it?"* — and when unsure, hand it up: the Architect answers it for you.
+
+## Routing — hand it over with whatever you have
+
+Work arrives at any maturity — a paragraph, a ticket, a half-decided design, a crisp task — and you don't have to know which. Routing asks two **separate** questions, and the pipeline proposes the answers; you confirm or override.
+
+**Question 1 — where does it enter?** (maturity: what's the first missing artifact)
 
 ```mermaid
 flowchart TD
-    S["Work arrives"] --> Q1{"Does behavior<br/>change?"}
-    Q1 -->|No| T0["<b>T0</b> — direct chat<br/>no pipeline, no artifacts"]
+    S["Work arrives — at any maturity"] --> Q0{"Is the <i>need itself</i><br/>still fuzzy?"}
+    Q0 -->|Yes| RQ["<b>/requirements</b><br/>pin down the what/why first"]
+    RQ --> Q1
+    Q0 -->|No| Q1{"Does behavior<br/>change?"}
+    Q1 -->|No| C["<b>Chore</b> — direct chat<br/>no pipeline, no artifacts"]
     Q1 -->|Yes| Q2{"Clear criteria, ≲3 files,<br/>no design questions?"}
-    Q2 -->|Yes| T1["<b>T1</b> — @builder inline<br/>TDD · no spec · no gates"]
-    Q2 -->|No| Q3{"Cross-service, migration,<br/>new infra, or irreversible?"}
-    Q3 -->|Yes| T3["<b>T3-full</b><br/>brief file + Gate A <b>mandatory</b><br/>Gate B panel — 5 auditors<br/>/code-review high"]
-    Q3 -->|No| Q4{"More than one<br/>viable approach?"}
-    Q4 -->|Yes| T2O["<b>T2 open-design</b><br/>brief file + Gate A<br/>Gate B lite"]
-    Q4 -->|No| T2F["<b>T2-fast</b> — the 90% path<br/>inline brief, Gate A waived<br/>Gate B lite — 1 auditor<br/>/code-review medium"]
+    Q2 -->|Yes| TK["<b>Task</b> — @builder inline<br/>TDD · no spec · no gates"]
+    Q2 -->|"No — or unsure"| AR["<b>@architect</b><br/>diagnoses entry + rigor,<br/>designs, splits into units if needed"]
 
     classDef q fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#0f172a
     classDef light fill:#dcfce7,stroke:#16a34a,stroke-width:1.5px,color:#0f172a
     classDef heavy fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px,color:#0f172a
-    class Q1,Q2,Q3,Q4 q
-    class T0,T1,T2F light
-    class T2O,T3 heavy
+    class Q0,Q1,Q2 q
+    class C,TK light
+    class RQ,AR heavy
 ```
 
-**T2-fast and T3-full carry almost everything.** The rest are **escalations the pipeline surfaces — never knobs you pre-select**:
+Already have material — a design doc, notes, a ticket? Hand it along. The pipeline structures and challenges what you decided; it never re-derives it.
 
-- **Below T2, the agent tells you.** Hand a T0 or T1 to the Architect and it declines, naming the direct path instead.
-- **Mid-flight promotion.** A T1 that surfaces a design question → the Builder stops and recommends T2. An ordinary T2 that surfaces one mid-spec → the Architect promotes to a full brief plus Gate A. **Nothing designs ad hoc.**
+**Question 2 — how much rigor?** (risk: blast radius and reversibility, not size of prose)
+
+| Path | Signals | Gate A | Gate B | Review |
+|---|---|---|---|---|
+| **Feature** — the 90% path | new behavior, single service, one viable approach | **waived** — inline brief in chat, recorded | **lite** — 1 auditor | `/code-review` medium |
+| **Open-design feature** | 2+ viable approaches, new dependency, contract change | **runs** — brief file | lite | medium |
+| **System change** | cross-service, migration, new infra, irreversible | **mandatory — not waivable** | **panel** — 5 auditors | high |
+
+Everything else is an **escalation the pipeline surfaces — never a knob you pre-select**:
+
+- **Below feature scale, the agent tells you.** Hand a chore or a task to the Architect and it declines, naming the direct path instead.
+- **Mid-flight promotion.** Maturity isn't monotonic: a task that surfaces a design question → the Builder stops and recommends the Architect. A feature that surfaces one mid-spec → the Architect promotes to a full brief plus Gate A. **Nothing designs ad hoc.**
 - **Gate-B breadth.** Lite by default; the auditor **auto-escalates to panel** on real risk (auth, migration, external API, irreversible). Force it with *"panel mode"*; waive it with *"skip Gate B"* (trivial changes only).
 
-**Don't over-tier and don't over-split.** Running T3 rigor on T2 work, or decomposing what one spec could hold, is the biggest self-inflicted cost in the system.
+**Don't over-weigh and don't over-split.** Running system-change rigor on an ordinary feature, or decomposing what one spec could hold, is the biggest self-inflicted cost in the system.
 
 ## The pipeline, stage by stage
 
 | # | Stage | Who | Produces | Gate |
 |---|---|---|---|---|
 | 1 | Discovery | `superpowers:brainstorming` | nothing — chat only | — |
-| 2 | Approach Brief | `@architect` | inline in chat (T2) · `docs/briefs/<t>.md` (T3, open-design) | **Gate A** on file briefs — `/approach-review` |
-| 2.5 | Decompose | `@architect` | `docs/plan/<t>-taskmap.md`, only if multi-spec | ungated for T1/T2 |
+| 2 | Approach Brief | `@architect` | inline in chat (feature) · `docs/briefs/<t>.md` (system, open-design) | **Gate A** on file briefs — `/approach-review` |
+| 2.5 | Decompose | `@architect` | `docs/plan/<t>-taskmap.md`, only if multi-spec | ungated below system scale |
 | 3 | Full spec | `@architect` | `docs/specs/<t>.md` [Draft] | **Gate B** — `/spec-review` |
 | 4 | Build | `@builder` | code + tests + Build Report | refuses unless `Status: Approved` |
 | 5 | Review | you commit, then `@reviewer` | Pass 1 spec compliance · Pass 2 `/code-review` | SHIP IT / NEEDS WORK / BLOCKER |
@@ -65,7 +80,7 @@ sequenceDiagram
 
     You->>A: feature request
     A->>A: Step 0 — load declared context
-    A-->>You: tier + inline brief — approve?
+    A-->>You: entry + rigor + inline brief — approve?
     You->>A: go
     A->>A: write docs/specs/x.md [Draft]
     A-->>You: run Gate B?
@@ -129,9 +144,9 @@ Segment consent never bypasses a gate — it only pre-answers "go" on a pass, an
 
 | The spec is… | Gate B |
 |---|---|
-| Trivial or mechanical — no new logic, no external input, no contract change | **Skip** — marked Approved directly, recorded as `⏭️ Skipped`. Rare; such work is usually T0/T1 anyway. |
-| Ordinary T2 (the default) | **Lite** — one **Opus** auditor, **focused** to the 2–3 perspectives that matter (Completeness + Scope always; Security / Scalability / API Design only if the surface triggers them) |
-| T3, or a T2 touching **auth, migration, external API, or an irreversible change** | **Panel** — 5 independent Opus auditors in parallel. A lite auditor auto-escalates here if it smells real risk. |
+| Trivial or mechanical — no new logic, no external input, no contract change | **Skip** — marked Approved directly, recorded as `⏭️ Skipped`. Rare; such work is usually a chore or task anyway. |
+| An ordinary feature (the default) | **Lite** — one **Opus** auditor, **focused** to the 2–3 perspectives that matter (Completeness + Scope always; Security / Scalability / API Design only if the surface triggers them) |
+| A system change, or a feature touching **auth, migration, external API, or an irreversible change** | **Panel** — 5 independent Opus auditors in parallel. A lite auditor auto-escalates here if it smells real risk. |
 
 Lite is cheaper by **breadth, not depth** — it keeps full Opus reasoning, because Gate B is the last check before code exists. Elsewhere the model tier does drop: mechanical stages (Reviewer, `/requirements`) run on Sonnet, design-critical ones (Architect, both gates) stay Opus.
 
@@ -141,7 +156,7 @@ Starting from fuzzy needs? Run `/requirements` first for a gated EARS requiremen
 
 **Decomposition lives inside the Architect.** You do **not** split work up front. Hand a feature over; it designs the brief, then decides **one spec or many**. Most features are one spec.
 
-**The decision rule — "can one spec hold it?"** A spec is one cohesive capability: roughly 5–12 acceptance criteria, ≤5 interfaces, ≤3 components. Fits → one spec. Doesn't → the Architect decomposes into a **Task Map** (`docs/plan/<f>-taskmap.md`), produced *after* the design and ungated for T1/T2. Unsure → hand it up anyway. **Don't pre-split out of caution.**
+**The decision rule — "can one spec hold it?"** — is the [unit contract](#the-unit-contract) applied. Fits → one spec. Doesn't → the Architect decomposes into a **Task Map** (`docs/plan/<f>-taskmap.md`), produced *after* the design and ungated below system scale. Unsure → hand it up anyway. **Don't pre-split out of caution.**
 
 ```mermaid
 flowchart LR
@@ -173,9 +188,9 @@ flowchart LR
 
 ## Worked scenarios
 
-The core question is always the same: **can one spec hold it?** The standard T2 path — one feature, one spec — is walked step by step in [GETTING-STARTED](GETTING-STARTED.md#4-your-first-feature-end-to-end); these are the other four shapes.
+The core question is always the same: **can one spec hold it?** The standard path — one feature, one spec — is walked step by step in [GETTING-STARTED](GETTING-STARTED.md#4-your-first-feature-end-to-end); these are the other four shapes.
 
-### 1. T1 — bounded task
+### 1. Bounded task
 
 You already know the change; ≤3 files, no design questions.
 
@@ -188,17 +203,17 @@ Acceptance criteria:
 
 → Builder runs TDD, verifies, prints a Build Report with an AC → Test map. **No spec, no gates.** Optional `/code-review` afterwards.
 
-*If the Builder reports that a design question surfaced, accept the promotion to T2 — don't push it to improvise.*
+*If the Builder reports that a design question surfaced, accept the promotion — the Architect takes it from there; don't push the Builder to improvise.*
 
-### 2. T3 — system change
+### 2. System change
 
 ```text
 @architect Introduce an outbox pattern for order events across order-svc and billing-svc.
 ```
 
 → Architect runs Discovery + Research, writes `docs/briefs/order-outbox.md` [Draft].
-→ `/approach-review docs/briefs/order-outbox.md` — Gate A, **mandatory for T3** → PASS.
-→ Architect decides *"this decomposes into 3 specs"* → writes `docs/plan/order-outbox-taskmap.md` and offers the T3 coverage audit.
+→ `/approach-review docs/briefs/order-outbox.md` — Gate A, **mandatory for system changes** → PASS.
+→ Architect decides *"this decomposes into 3 specs"* → writes `docs/plan/order-outbox-taskmap.md` and offers the coverage audit.
 → writes the first spec → Gate B **panel** → build → review → you pick the next task.
 
 ### 3. Multi-spec feature
@@ -212,11 +227,11 @@ trigger and poll it, and a download endpoint.
 
 → Architect: brief → *"this decomposes into 3 specs"* → `docs/plan/reports-export-taskmap.md`:
 
-| Task | Title | Tier | Depends-on | [P] |
+| Task | Title | Path | Depends-on | [P] |
 |------|-------|------|-----------|-----|
-| T01  | export job + storage | T2 | — | |
-| T02  | trigger/poll API | T2 | T01 | |
-| T03  | download endpoint | T2 | T01 | P |
+| T01  | export job + storage | feature | — | |
+| T02  | trigger/poll API | feature | T01 | |
+| T03  | download endpoint | feature | T01 | P |
 
 → writes the spec for T01 now → Gate B → build → review. Then **you** pick T02 — or T03, since it's `[P]`.
 
@@ -244,7 +259,7 @@ The need is a paragraph, not crisp criteria yet.
 |---|---|
 | *"go"* / *"proceed"* | advance past the gate that just passed |
 | *"run it through Gate B"* / *"…through the build"* | segment consent — PASS flows, non-pass stops |
-| *"panel mode"* | force the 5-auditor Gate B on a T2 |
+| *"panel mode"* | force the 5-auditor Gate B on a feature |
 | *"skip Gate B"* | trivial changes only — recorded as `⏭️ Skipped` in the spec |
 | *"expand CRT-1"* / *"show AC coverage"* | drill into review findings |
 

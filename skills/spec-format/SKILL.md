@@ -29,8 +29,8 @@ Spec:            Draft ──→ Detail Audit ──→ Approved
 ```
 
 **Gate A proportionality (quality preserved, ceremony scaled):**
-- **Ordinary T2 (default):** the brief is presented *inline in chat* (chosen approach, ≥1 rejected alternative with a real reason, key risk) — no file, no gate run. The user's nod is the approval; the spec's `**Brief:**` line records `_Inline — Gate A waived: [reason]_`. The reasoning lenses still apply — only the ceremony is compressed.
-- **Open-design T2** (multiple viable approaches, new dependency, contract changes) **and all T3:** full brief artifact + `/approach-review`. **Gate A cannot be waived for T3.**
+- **Standard feature (default):** the brief is presented *inline in chat* (chosen approach, ≥1 rejected alternative with a real reason, key risk) — no file, no gate run. The user's nod is the approval; the spec's `**Brief:**` line records `_Inline — Gate A waived: [reason]_`. The reasoning lenses still apply — only the ceremony is compressed.
+- **Open-design feature** (multiple viable approaches, new dependency, contract changes) **and every system change:** full brief artifact + `/approach-review`. **Gate A cannot be waived for a system change.**
 - If a real design question surfaces after an inline brief, the Architect stops and promotes to the full brief + Gate A — no designing through it.
 
 **Gate B skips** (user's call, always recorded): all Review Notes rows set to `⏭️ Skipped`, Status advances to `Approved` directly (trivial changes only).
@@ -48,7 +48,7 @@ When a gate sends an artifact back to `Draft`, the Architect revises and the cyc
 Two more artifacts sit around the brief/spec. Both are optional — a known single task uses neither. `spec-format` owns their *format*; the *method* lives elsewhere (`requirements-composition` for requirements; the Architect's on-demand `decomposition` skill for the task map).
 
 - **Requirements doc** — an optional **front stage** (`/requirements`), produced *before* any design: what/why in EARS with `R#` IDs.
-- **Task Map** — produced by the **Architect**, *after* the brief, and **only when a feature is more than one spec** (spec-then-tasks — the design comes first, tasks derive from it). It is the Architect's ledger of the split specs. **Ungated for T1/T2** (reviewed inline; its lifecycle rides the brief's Gate A); an optional read-only coverage audit runs for T3 only.
+- **Task Map** — produced by the **Architect**, *after* the brief, and **only when a feature is more than one spec** (spec-then-tasks — the design comes first, tasks derive from it). It is the Architect's ledger of the split specs. **Ungated below system scale** (reviewed inline; its lifecycle rides the brief's Gate A); an optional read-only coverage audit runs for system changes only.
 
 ### Requirements Doc Format
 
@@ -84,7 +84,7 @@ Location: `docs/requirements/<feature>.md`. Lifecycle: `Draft → Approved` — 
 
 ### Task Map Format
 
-Location: `docs/plan/<feature>-taskmap.md`. Produced by the Architect from the brief when the feature is multi-spec. Ungated for T1/T2; optional T3 coverage audit.
+Location: `docs/plan/<feature>-taskmap.md`. Produced by the Architect from the brief when the feature is multi-spec. Ungated below system scale; optional coverage audit for system changes.
 
 ```markdown
 # <Feature> — Task Map
@@ -93,17 +93,17 @@ Location: `docs/plan/<feature>-taskmap.md`. Produced by the Architect from the b
 **Brief:** docs/briefs/<feature>.md
 **Requirements:** docs/requirements/<feature>.md  (or _None_)
 
-| Task | Title | Tier | Requirements | Depends-on | [P] | Status | Spec | Commit | Verdict |
+| Task | Title | Path | Requirements | Depends-on | [P] | Status | Spec | Commit | Verdict |
 |------|-------|------|--------------|-----------|-----|--------|------|--------|---------|
-| T01  | …     | T2   | R1, R2       | —         | P   | pending | —   | —      | —       |
-| T02  | …     | T1   | R3           | T01       |     | pending | —   | —      | —       |
+| T01  | …     | feature | R1, R2    | —         | P   | pending | —   | —      | —       |
+| T02  | …     | task | R3           | T01       |     | pending | —   | —      | —       |
 
 ## Coverage Audit
-<!-- T3 only: populated by the Architect's read-only auditor. Do not edit manually. -->
-_Not audited (T1/T2) | Not audited yet (T3)_
+<!-- System changes only: populated by the Architect's read-only auditor. Do not edit manually. -->
+_Not audited (task/feature) | Not audited yet (system change)_
 ```
 
-**Columns:** `Requirements` = the `R#`s this task satisfies (the traceability spine). `Depends-on` = task IDs that must be `complete` first. `[P]` = parallel-safe (no shared files, no dependency). `Spec`/`Commit`/`Verdict` fill in as the task moves through the pipeline. Status values: `pending → in_progress → review → complete | blocked`.
+**Columns:** `Path` = how the task runs (`task` = straight to the Builder, no spec · `feature` = spec + Gate B). `Requirements` = the `R#`s this task satisfies (the traceability spine). `Depends-on` = task IDs that must be `complete` first. `[P]` = parallel-safe (no shared files, no dependency). `Spec`/`Commit`/`Verdict` fill in as the task moves through the pipeline. Status values: `pending → in_progress → review → complete | blocked`.
 
 ---
 
@@ -115,7 +115,7 @@ _Not audited (T1/T2) | Not audited yet (T3)_
 # [Topic] — Approach Brief
 
 **Status:** Draft | Approach Review | Approach-Approved
-**Tier:** T2 | T3
+**Path:** feature | system
 
 ## Problem
 [What we're solving and for whom — 2-4 sentences]
@@ -223,7 +223,9 @@ Strategic/approach concerns live in the **brief's** `## Approach Review` section
 - Every function signature must include its error/exception cases.
 - Missing or ambiguous sections → STOP and ask. Do not assume or invent.
 
-## Scope Guidelines
+## Scope Guidelines — the unit contract
+
+This is the pipeline's **unit contract**: the build loop consumes exactly one shape of work — one spec covering one cohesive capability, independently implementable, testable, and reviewable in one cycle. Everything upstream of the Builder exists to convert work of any maturity into approved units; nothing bigger ever reaches implementation.
 
 A well-scoped spec should:
 - Cover **one cohesive capability** (not multiple bundled features)
@@ -256,7 +258,7 @@ The spec defines **what** and **why**. The Builder decides **how**. Do NOT inclu
 
 ## How Each Agent Uses This
 
-- **Architect:** Produces the brief first (T2+); after `Approach-Approved` (or a recorded skip), produces the spec following this format exactly. All section headings required (`N/A — reason` allowed per the escape hatch above). Writes function signatures and type definitions — never function bodies. When finishing the spec, asks the user which reviews to run before advancing status.
+- **Architect:** Produces the brief first (feature and system paths); after `Approach-Approved` (or a recorded skip), produces the spec following this format exactly. All section headings required (`N/A — reason` allowed per the escape hatch above). Writes function signatures and type definitions — never function bodies. When finishing the spec, asks the user which reviews to run before advancing status.
 - **Approach Review (`/approach-review`, Gate A):** Reads the brief. Writes challenge rounds into the brief's `## Approach Review` section. Sets brief Status: `Approach Review` while active → `Approach-Approved` on PASS, `Draft` on RETHINK.
 - **Detail Audit (`/spec-review`, Gate B):** Verifies the linked brief is `Approach-Approved` (or the skip is recorded). Reads the full spec + brief. Fills the `## Review Notes` table per perspective. Updates spec `Status` to `Detail Audit` while active, back to `Draft` if blocking issues, or to `Approved` if all pass.
 - **Builder:** First checks spec `Status` — if not `Approved`, stop and point to the gates. Then maps each section to implementation:

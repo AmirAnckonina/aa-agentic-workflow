@@ -77,7 +77,7 @@ The `Review rules` entry is worth knowing about: point it at a file of past inci
 
 ## 4. Your first feature, end to end
 
-A real T2 run — one feature, one spec, both gates handled at their default settings. Artifacts land in the **target** repo, not in the plugin.
+A real feature run — one feature, one spec, both gates handled at their default settings. Artifacts land in the **target** repo, not in the plugin.
 
 ### Step 1 — hand the work to the Architect
 
@@ -85,11 +85,11 @@ A real T2 run — one feature, one spec, both gates handled at their default set
 @architect Add rate limiting to the POST /logs endpoint.
 ```
 
-It loads context, proposes a tier and track, and — for an ordinary feature — presents an **inline brief** in chat rather than writing a brief file:
+You can hand it work at any maturity — a paragraph, a ticket, a half-decided design. It loads context, diagnoses where the work stands and how much rigor it deserves, and — for an ordinary feature — presents an **inline brief** in chat rather than writing a brief file:
 
 ```text
 Context loaded: docs/agentic-context.md, CLAUDE.md, internal/api/logs.go
-Tier: T2 · track: fast (single service, one viable approach)
+Standard feature — single service, one viable approach → inline brief, lite spec review.
 
 Inline brief — token bucket per API key, in-process, 100 req/min.
   Rejected: Redis-backed counter — adds an infra dependency for
@@ -149,7 +149,7 @@ Every agent stage can be driven three ways:
 
 | Mode | How | Interactivity | Best for |
 |---|---|---|---|
-| **Main-session agent** | `claude --agent architect` | Full — gates wait for your reply in place | Design sessions, T2/T3 end to end |
+| **Main-session agent** | `claude --agent architect` | Full — gates wait for your reply in place | Design sessions; features and system changes end to end |
 | **Subagent** | `@architect …` inside any session | One-shot — the agent ends its turn at a gate with the question as its result; your next message continues it | Running one stage inside a larger conversation |
 | **Headless** | `claude --agent builder -p "…"` | None — stops at gates and prints the pending question | Automation, bounded builds, smoke tests |
 
@@ -177,11 +177,11 @@ Also by design — `git-guard` blocks commit, push, merge, rebase, reset, and `c
 The work isn't committed. Create a feature branch and commit — otherwise the Reviewer falls back to reviewing the working tree and will tell you it did.
 
 **Gate B stops and points at Gate A.**
-The spec links a brief that isn't `Approach-Approved`. Either run `/approach-review` on that brief, or — if the work genuinely didn't need it — have the Architect record the waiver in the `Brief:` line. On T3 this is not negotiable: a T3 spec without an approved brief is itself a blocking finding.
+The spec links a brief that isn't `Approach-Approved`. Either run `/approach-review` on that brief, or — if the work genuinely didn't need it — have the Architect record the waiver in the `Brief:` line. On a system change this is not negotiable: a system-change spec without an approved brief is itself a blocking finding.
 
 **Everything feels too heavy for the change you're making.**
-It's probably not a T2. A typo is T0 — just ask in direct chat. A bounded change under three files with clear criteria is T1 — hand it straight to `@builder` with inline acceptance criteria, no spec and no gates. Over-tiering is the most common self-inflicted cost.
+It's probably not feature-sized. A typo or config tweak is a chore — just ask in direct chat. A bounded change under three files with clear criteria is a task — hand it straight to `@builder` with inline acceptance criteria, no spec and no gates. Over-weighing small work is the most common self-inflicted cost.
 
 ---
 
-**Next:** [WORKFLOW.md](WORKFLOW.md) — tiers, gate mechanics, multi-spec features, and the phrases that drive the pipeline.
+**Next:** [WORKFLOW.md](WORKFLOW.md) — routing, gate mechanics, multi-spec features, and the phrases that drive the pipeline.

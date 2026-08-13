@@ -4,7 +4,7 @@ description: >
   Use when an Approach Brief needs its strategic challenge before the full spec is written —
   "approach review", "challenge the approach", "is this the right way to build it".
   Gate A of the pipeline: challenges the HOW while rework is still one page cheap.
-  Mandatory for T3 (system-level) work.
+  Mandatory for system changes (cross-service, migration, new infra, irreversible).
 user-invocable: true
 ---
 
@@ -25,7 +25,7 @@ Architect (Approach Brief, Draft) → /approach-review (Gate A) → Architect (F
                   └──── RETHINK ───────────┘  (back to Architect with specific feedback)
 ```
 
-The whole point of this gate: a RETHINK here costs one revised page. The same finding after a full spec costs the spec. **Runs always for T3 and for open-design T2s (multiple viable approaches, new dependencies, contract changes). Ordinary bounded T2s use an inline chat brief instead — recorded in the spec's `Brief:` line as a waiver — and never reach this gate.**
+The whole point of this gate: a RETHINK here costs one revised page. The same finding after a full spec costs the spec. **Runs always for system changes and for open-design features (multiple viable approaches, new dependencies, contract changes). Standard features use an inline chat brief instead — recorded in the spec's `Brief:` line as a waiver — and never reach this gate.**
 
 ---
 
@@ -179,7 +179,7 @@ When the Architect revises after a RETHINK and asks for re-review:
 
 ## When NOT to Use This Skill
 
-- Ordinary bounded T2 → the Architect presents an inline chat brief, records the waiver, and writes the spec directly
+- Standard feature → the Architect presents an inline chat brief, records the waiver, and writes the spec directly
 - You want detail-level checks on a spec (security fields, API shapes) → use `/spec-review`
 - You want to review implementation code → use the Reviewer agent
 - The brief is already `Approach-Approved` and nothing has changed

@@ -35,14 +35,14 @@ Apply the `spec-format` split criteria to the brief's design. It's **one spec** 
 - spans layers/services (e.g. migration + backend + API);
 - you catch yourself writing "Phase 1 / Phase 2".
 
-State the decision in one line: *"This is one spec"* or *"This decomposes into N specs — writing a Task Map."* Don't manufacture a split; most T2 features are one spec.
+State the decision in one line: *"This is one spec"* or *"This decomposes into N specs — writing a Task Map."* Don't manufacture a split; most features are one spec.
 
 ## Step 2: Derive the Task Map (only when "many")
 
 Write `docs/plan/<feature>-taskmap.md` per the **Task Map format** in `spec-format`. Each task:
 
 - is **one independently testable unit** (a reviewer could accept it alone) — size to the seam, not a clock;
-- carries a **tier** (T1/T2/T3) per the sizing rules in `docs/WORKFLOW.md`;
+- carries a **path** (`task` — straight to the Builder, no spec · `feature` — spec + Gate B) per the routing rules in `docs/WORKFLOW.md`;
 - lists the **`R#`** requirement IDs it satisfies (the traceability spine) when a requirements doc exists;
 - names its **`Depends-on`** tasks and a **`[P]`** marker when it shares no files with, and doesn't depend on, its siblings (parallel-safe);
 - names the **spec** it becomes (filled in as specs are written).
@@ -51,11 +51,11 @@ Order by dependency (models → services → endpoints; independent tasks in the
 
 The Task Map is the **durable ledger**. The human's driving session mirrors its rows into the native to-do board for live tracking (`docs/WORKFLOW.md` → *Track it on the native board*) — that board is the driver's, not yours; you own the map file.
 
-## Step 3: Right-weight check (ungated for T1/T2)
+## Step 3: Right-weight check (ungated below system scale)
 
 Present the Task Map top-down and refine it inline with the user. **Do not gate it** for ordinary work — review, adjust, proceed. The design was already challenged at Gate A; the split is a derivative, not a new decision.
 
-**T3 only:** offer a read-only coverage audit — a fresh-context subagent (the Gate-B dispatch pattern) checking that every `R#` is covered by ≥1 task, no task cites a dangling `R#`, `Depends-on` is acyclic, and tiers are sane. Record it in the map's `## Coverage Audit` section. This is the *only* place decomposition adds a gate, and only at system scale.
+**System changes only:** offer a read-only coverage audit — a fresh-context subagent (the Gate-B dispatch pattern) checking that every `R#` is covered by ≥1 task, no task cites a dangling `R#`, `Depends-on` is acyclic, and the path assignments are sane. Record it in the map's `## Coverage Audit` section. This is the *only* place decomposition adds a gate, and only at system scale.
 
 ## Step 4: Specs, just-in-time
 

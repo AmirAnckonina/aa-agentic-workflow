@@ -2,10 +2,18 @@
 
 All notable changes to `aa-agentic-workflow`. Format loosely follows [Keep a Changelog](https://keepachangelog.com/); versions track `plugin.json`.
 
-## [Unreleased]
+## [0.8.0] — 2026-08-13
+
+Routing reframed around **maturity + risk** instead of size tiers — the tier codes `T0–T3` are gone from every user-facing surface — and the documentation restructured for external readers. No gate, hook, or artifact-lifecycle behavior changed.
 
 ### Changed
-- **Documentation restructured for external readers.** The doc set is now four files with a clear reading order: `README` (landing page — problem, approach, gates, install, worked example), `docs/GETTING-STARTED` (setup, verification, first end-to-end run, troubleshooting), `docs/WORKFLOW` (operating manual), `docs/DESIGN` (rationale). Six Mermaid diagrams added: pipeline flow, tier routing, T2 sequence, artifact status lifecycle, Task Map fan-out, and the owned-vs-rented component map.
+- **Plain-language paths replace tier codes**: `T0 → chore`, `T1 → task`, `T2 → feature` (with *open-design feature* as the escalated form), `T3 → system change` — across README, WORKFLOW, GETTING-STARTED, DESIGN, all three agents, and all skills. Artifact fields renamed: brief `**Tier:**` → `**Path:** feature | system`; Task Map `Tier` column → `Path`.
+- **Entry-stage diagnosis (Architect Step 1 rewritten).** Work is accepted at any maturity; the Architect diagnoses two separate axes — *where it enters* (what's the first missing artifact: requirements → brief → decompose → build) and *how much rigor it gets* (risk: blast radius/reversibility) — and proposes both in plain words. Prior material (design docs, tickets, notes) is structured and challenged, never re-derived. Rationale recorded in DESIGN §6.4.
+- **The unit contract canonized.** The build loop consumes only units — one spec, one cohesive capability (~5–12 ACs, ≤5 interfaces, ≤3 components), one review cycle — stated in README, WORKFLOW (own section), and `spec-format`'s scope guidelines.
+- **WORKFLOW routing diagram** reshaped from a size tree into the maturity ladder (fuzzy need → `/requirements`; no behavior change → chore; bounded → task; else → `@architect`), with the rigor table alongside.
+- **Builder spec-gate matching hardened**: whole-spec-name containment match runs before the loose token fallback, and the block message now names *how* the spec was matched plus the wrong-match escape hatch.
+- `/review-internal` command wrapper dropped from Opus to Sonnet — it dispatches the (Sonnet) reviewer agent and relays; effort-critical work already runs inside `/code-review`.
+- **Documentation restructured for external readers.** The doc set is now four files with a clear reading order: `README` (landing page — problem, approach, gates, install, worked example), `docs/GETTING-STARTED` (setup, verification, first end-to-end run, troubleshooting), `docs/WORKFLOW` (operating manual), `docs/DESIGN` (rationale). Six Mermaid diagrams added: pipeline flow, routing, feature-path sequence, artifact status lifecycle, Task Map fan-out, and the owned-vs-rented component map.
 - **`DESIGN.md` rewritten as design rationale.** The migration plan, open questions, and v1 comparisons moved out to *Project history* below; what remains is goals, principles, architecture, and the reasoning behind each decision.
 - `docs/EXAMPLES.md` folded into `WORKFLOW.md` as *Worked scenarios*; run modes and troubleshooting moved from `WORKFLOW.md` to `GETTING-STARTED.md`.
 

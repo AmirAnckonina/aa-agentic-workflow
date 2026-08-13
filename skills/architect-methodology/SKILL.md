@@ -19,7 +19,7 @@ This skill defines **how to reason about design decisions**. It provides lenses 
 **Triggers:** Concrete action requested — "write a spec", "write X", "implement Y", "design this feature"
 **Output:** An **Approach Brief** first (~1 page, `docs/briefs/`), then — after Gate A passes or is skipped — a formal spec following the `spec-format` skill, delivered as **Draft**.
 **Depth:** Full — all five lenses. Apply them to the *approach* when writing the brief; re-verify at spec depth when writing the spec.
-**Handoff rule:** A Draft spec MUST go through Gate B before reaching the Builder. The Architect asks the user which gates to run (Gate A + Gate B, Gate B only, or skip — Gate A is mandatory for T3 work). Do not hand off directly to the Builder without asking. Mark artifacts `Draft` until the chosen gates complete and approve them.
+**Handoff rule:** A Draft spec MUST go through Gate B before reaching the Builder. The Architect asks the user which gates to run (Gate A + Gate B, Gate B only, or skip — Gate A is mandatory for system changes). Do not hand off directly to the Builder without asking. Mark artifacts `Draft` until the chosen gates complete and approve them.
 
 ### Workflow: Spec Mode Pipeline
 ```

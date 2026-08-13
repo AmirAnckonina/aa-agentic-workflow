@@ -1,7 +1,7 @@
 ---
 description: "Internal code review — reviews the current branch against the Architect's spec (Pass 1: spec compliance; Pass 2: delegated /code-review) and prints the verdict report to the terminal. Git actions optional, on request only."
 argument-hint: "[focus areas or notes]"
-model: opus
+model: sonnet
 ---
 
 # Internal Code Review
@@ -30,7 +30,7 @@ Use the Agent tool to invoke the **reviewer** agent:
 ### Step 2: Handle the PASS 1 ONLY Fallback
 If the reviewer's report is marked **PASS 1 ONLY** (it could not invoke the built-in `code-review` skill from its subagent context):
 1. Relay the Pass 1 report first (per Step 3 rules).
-2. Then invoke the built-in **code-review** skill yourself from this session, at the effort the reviewer named (T2 → medium, T3 → high). If the reviewer reported a repo review-rules file, include its contents as review guidance.
+2. Then invoke the built-in **code-review** skill yourself from this session, at the effort the reviewer named (feature → medium, system change → high). If the reviewer reported a repo review-rules file, include its contents as review guidance.
 3. Combine: apply the reviewer's verdict rules to the union of findings and state the final verdict yourself.
 
 ### Step 3: Present Results
