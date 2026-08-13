@@ -1,58 +1,181 @@
+<div align="center">
+
 # aa-agentic-workflow
 
-A governance-first SDLC pipeline for Claude Code: **Architect → gates → Builder → Reviewer**, with spec-as-source-of-truth and structurally enforced approval gates.
+**A governance layer for AI-assisted software development.**
 
-- **Owns:** artifacts (Requirements doc, Approach Brief, Task Map, Spec), gates (`/requirements`, `/approach-review`, `/spec-review`), role agents, the status lifecycle, `R#` requirement→task→spec traceability, spec-compliance review.
-- **Delegates:** intent exploration + TDD / debugging / verification discipline → [Superpowers](https://github.com/obra/superpowers) (required); generic quality review → built-in `/code-review`.
+Agents don't write code until a spec exists, an independent reviewer has audited it, and you've said go.
 
-**Spec-driven (Model A):** hand a feature to `@architect`; it designs the brief, then **decomposes into task-specs only when the feature is more than one spec** — spec-then-tasks, decomposition ungated for T1/T2. `/requirements` is an optional EARS front stage. A known single task skips straight to `@architect`/`@builder`, unchanged. See [docs/EXAMPLES.md](docs/EXAMPLES.md).
+[![Version](https://img.shields.io/badge/version-0.7.0-blue)](CHANGELOG.md)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8A63D2)](https://docs.claude.com/en/docs/claude-code)
+[![Requires: Superpowers](https://img.shields.io/badge/requires-superpowers-orange)](https://github.com/obra/superpowers)
 
-**Start here:** [docs/WORKFLOW.md](docs/WORKFLOW.md) (operating manual) · [docs/DESIGN.md](docs/DESIGN.md) (rationale & decisions).
+[Getting started](docs/GETTING-STARTED.md) · [Workflow guide](docs/WORKFLOW.md) · [Design rationale](docs/DESIGN.md)
 
-## Layout
+</div>
 
+---
+
+## The problem
+
+Handing a feature to a coding agent works right up until the feature is non-trivial. Then three things go wrong, every time:
+
+- **The agent designs while it codes.** The first plausible approach becomes the implementation. Alternatives are never considered, and the trade-off is invisible in the diff.
+- **Nobody audits the plan — only the result.** By the time a bad decision shows up in code review, it costs a rewrite. The cheap moment to catch it has passed.
+- **"Done" is self-reported.** The same context that wrote the code decides whether the code is correct. There is no independent check that what was built is what was asked for.
+
+The usual answer is a better prompt. That doesn't scale — the failure isn't phrasing, it's the absence of structure.
+
+## The approach
+
+This plugin adds an **SDLC pipeline with enforced approval gates** to Claude Code. Design is a separate stage from implementation, performed by a separate agent, and challenged by independent reviewers who never see the designer's reasoning. Nothing gets built from an unapproved spec — and that's enforced by the harness, not by asking the model nicely.
+
+```mermaid
+flowchart TD
+    N["Raw need"] --> R{"/requirements<br/>optional front stage"}
+    R -->|"docs/requirements/*.md<br/>EARS criteria · R# IDs"| AR
+    N --> AR["@architect<br/>designs the approach"]
+
+    AR --> BR["Approach Brief<br/>~1 page · docs/briefs/"]
+    BR --> GA{"Gate A<br/>/approach-review<br/><b>Is this the right way?</b>"}
+    GA -->|RETHINK| AR
+
+    GA -->|PASS| SP["Spec<br/>docs/specs/"]
+    AR -.->|"ordinary feature:<br/>inline brief, Gate A waived"| SP
+
+    SP --> GB{"Gate B<br/>/spec-review<br/><b>Is this safe to build?</b>"}
+    GB -->|Blocking| SP
+
+    GB -->|Approved| BD["@builder<br/>TDD · refuses unapproved specs"]
+    BD --> RV["@reviewer<br/>Pass 1 spec compliance<br/>Pass 2 /code-review"]
+    RV -->|NEEDS WORK| BD
+    RV -->|SHIP IT| SH["Ship"]
+
+    classDef agent fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px,color:#0f172a
+    classDef gate fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#0f172a
+    classDef art fill:#f1f5f9,stroke:#64748b,stroke-width:1.5px,color:#0f172a
+    classDef done fill:#dcfce7,stroke:#16a34a,stroke-width:1.5px,color:#0f172a
+
+    class AR,BD,RV agent
+    class GA,GB,R gate
+    class BR,SP,N art
+    class SH done
 ```
-agents/      architect · builder · reviewer
-skills/      requirements-composition · decomposition · spec-format · approach-review · spec-review · architect-methodology · coding-standards
-commands/    requirements · review-internal
-docs/        DESIGN.md · WORKFLOW.md · EXAMPLES.md
-```
 
-## Dependencies
+Every stage produces a named artifact with a `Status:` field, and **status is law** — the Builder refuses to touch implementation code unless the spec on disk reads `Approved`.
 
-- **Superpowers plugin** — required. Agents invoke `test-driven-development`, `systematic-debugging`, `verification-before-completion`, `brainstorming`.
-- **Claude Code** — current version (agent `skills:` preloading, hooks, nested subagents).
-- `jq` — powers the Architect write-guard and the Builder spec-gate / git-guard hooks (all fail open if absent).
+## What it owns, what it rents
+
+The design principle is **own decisions, rent techniques**. This plugin owns the governance layer and nothing else — every generic capability is delegated to its upstream owner, so there's no duplicated prose to maintain.
+
+| Owned here | Rented |
+|---|---|
+| Artifacts: Requirements doc, Approach Brief, Task Map, Spec | TDD discipline → `superpowers:test-driven-development` |
+| Gates A & B, and their verdict semantics | Debugging → `superpowers:systematic-debugging` |
+| Role agents: Architect · Builder · Reviewer | Done-claim verification → `superpowers:verification-before-completion` |
+| Status lifecycle + structural enforcement (hooks) | Ideation → `superpowers:brainstorming` |
+| `R#` requirement → task → spec → test traceability | Generic quality review → built-in `/code-review` |
+| Spec-compliance review (Reviewer Pass 1) | Security scan → built-in `/security-review` |
+
+## The two gates
+
+Both are review checkpoints run by **fresh-context reviewers** — they never inherit the Architect's reasoning, so they can't be argued into agreement. They differ in what they review and what failure costs.
+
+|  | **Gate A** — `/approach-review` | **Gate B** — `/spec-review` |
+|---|---|---|
+| Reviews | the Approach Brief (~1 page) | the full spec, before any code |
+| Asks | *Is this the right way to build it?* | *Is this complete and safe to build from?* |
+| Method | 3–5 hard questions as an experienced CTO | up to 5 independent audits: Security · Scalability · API Design · Completeness · Scope |
+| Verdict | PASS → `Approach-Approved` · RETHINK → `Draft` | Approved → Builder unlocked · Blocking → `Draft` |
+| Failure costs | one revised page | one revised spec — still no code written |
+
+**Cheap before expensive:** the strategic challenge happens while rework is a page; detail auditing only runs on an approach that already survived.
+
+### Which gates run, by size of work
+
+The Architect proposes a tier; you confirm or override.
+
+| Tier | What it is | Gate A | Gate B |
+|---|---|---|---|
+| **T0** | typo, config tweak, no behavior change | — direct chat, no pipeline | — |
+| **T1** | bounded task, ≲3 files, clear criteria | — straight to `@builder` | — no spec exists |
+| **T2** | a feature — new behavior, single service | **waived** — inline brief in chat, waiver recorded | **lite** — 1 auditor, focused perspectives |
+| **T2 open-design** | 2+ viable approaches, new dependency, contract change | **runs** | lite |
+| **T3** | cross-service, migration, new infra, irreversible | **mandatory — not waivable** | **panel** — 5 parallel auditors |
+
+Note the asymmetry: **Gate A is the waivable one, Gate B isn't.** The fast path compresses ceremony, never the last check before code. And it self-corrects — if a genuine design question surfaces while the spec is being written, the Architect stops and promotes the work to a full brief plus Gate A rather than designing through it.
 
 ## Install
-
-The repo is its own marketplace (`.claude-plugin/marketplace.json`, marketplace name `aa`), so it installs in two commands:
 
 ```bash
 claude plugin marketplace add AmirAnckonina/aa-agentic-workflow
 claude plugin install aa-agentic-workflow@aa
 ```
 
-Agents (`@architect`, `@builder`, `@reviewer`), commands (`/requirements`, `/review-internal`), and the skills load on the **next** session.
+The repo is its own marketplace. [Superpowers](https://github.com/obra/superpowers) is a declared dependency and installs automatically. Agents and commands load on the **next** session.
 
-**Local dev loop.** Clone, then either load it live (no install — reflects edits; `/reload-plugins` for skills, restart for agents/commands) or install from the local path:
+Full setup, verification, and a first end-to-end run: **[docs/GETTING-STARTED.md](docs/GETTING-STARTED.md)**.
 
-```bash
-git clone https://github.com/AmirAnckonina/aa-agentic-workflow ~/repositories/aa-agentic-workflow
-claude --plugin-dir ~/repositories/aa-agentic-workflow            # live, no install
-# — or install from the local marketplace —
-claude plugin marketplace add ~/repositories/aa-agentic-workflow
-claude plugin install aa-agentic-workflow@aa
+## A feature, end to end
+
+```text
+> @architect Add rate limiting to the POST /logs endpoint.
+
+  Context loaded: docs/agentic-context.md, CLAUDE.md, internal/api/logs.go
+  Tier: T2 · track: fast (single service, one viable approach)
+
+  Inline brief — token bucket per API key, in-process, 100 req/min.
+    Rejected: Redis-backed counter — adds an infra dependency for
+    single-instance traffic volumes.
+    Key risk: limits reset on deploy. Acceptable at current scale.
+
+  Approve the approach?
+
+> go
+
+  Wrote docs/specs/logs-rate-limit.md [Draft] — 7 acceptance criteria.
+  Run Gate B?
+
+> /spec-review docs/specs/logs-rate-limit.md
+
+  Gate B mode: lite (T2) — 3 focused perspectives: Completeness, Scope, Security
+  BLOCKING (Security): AC-4 leaks the remaining quota to unauthenticated
+    callers via the 429 body. Return Retry-After only.
+  Verdict: Blocking → spec returned to Draft
 ```
 
-After editing an installed copy, bump `version` in `plugin.json` and run `claude plugin update aa-agentic-workflow@aa`. Validate the manifest with `claude plugin validate . --strict`.
+Gate B caught it **before a line of code existed**. The spec gets one revision, re-runs the gate, and only then does `@builder` start — and it verifies structurally that the status reads `Approved`.
 
-**Dependency:** [Superpowers](https://github.com/obra/superpowers) is declared in `plugin.json` `dependencies` and resolves from the official marketplace, so `claude plugin install` pulls it automatically. Agents also check for its skills at Step 0 and stop with a clear message if it is somehow absent.
+## What ships
 
-> **Namespacing:** plugin components are namespaced — `/aa-agentic-workflow:spec-review`, `@aa-agentic-workflow:architect`. Doc examples use short names for readability.
+```
+agents/     architect (opus) · builder (sonnet) · reviewer (sonnet)
+skills/     spec-format · architect-methodology · decomposition · requirements-composition
+            approach-review (Gate A) · spec-review (Gate B) · coding-standards
+commands/   /requirements · /review-internal
+docs/       GETTING-STARTED · WORKFLOW · DESIGN
+```
 
-Supersedes the `agentic-workflow` capability in `custom-agentic-tools` (v1) — don't run both.
+Two structural guarantees are enforced by `PreToolUse` hooks rather than prompt text: the Builder cannot edit implementation files when the matched spec isn't `Approved` (**spec-gate**), and the Builder cannot commit, push, merge, or rebase (**git-guard**) — commits stay a human action so the Reviewer always has a real diff to review. Both fail open if `jq` is missing.
+
+## Where to go next
+
+| If you want to… | Read |
+|---|---|
+| Install it and run your first feature | [docs/GETTING-STARTED.md](docs/GETTING-STARTED.md) |
+| Drive the pipeline day to day — tiers, gates, multi-spec features | [docs/WORKFLOW.md](docs/WORKFLOW.md) |
+| Understand why it's built this way | [docs/DESIGN.md](docs/DESIGN.md) |
+| See what changed between versions | [CHANGELOG.md](CHANGELOG.md) |
+
+## Requirements
+
+- **Claude Code** — current version (agent `skills:` preloading, `PreToolUse` hooks, nested subagents)
+- **[Superpowers](https://github.com/obra/superpowers)** — required, installed automatically as a declared dependency
+- **`jq`** — powers the Architect write-guard and the Builder gate hooks (all fail open if absent)
+
+> **Namespacing:** plugin components are namespaced in real use — `/aa-agentic-workflow:spec-review`, `@aa-agentic-workflow:architect`. The docs use short names for readability.
 
 ## License
 
-MIT
+[MIT](LICENSE) © Amir Anckonina

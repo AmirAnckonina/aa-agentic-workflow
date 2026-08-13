@@ -2,6 +2,16 @@
 
 All notable changes to `aa-agentic-workflow`. Format loosely follows [Keep a Changelog](https://keepachangelog.com/); versions track `plugin.json`.
 
+## [Unreleased]
+
+### Changed
+- **Documentation restructured for external readers.** The doc set is now four files with a clear reading order: `README` (landing page — problem, approach, gates, install, worked example), `docs/GETTING-STARTED` (setup, verification, first end-to-end run, troubleshooting), `docs/WORKFLOW` (operating manual), `docs/DESIGN` (rationale). Six Mermaid diagrams added: pipeline flow, tier routing, T2 sequence, artifact status lifecycle, Task Map fan-out, and the owned-vs-rented component map.
+- **`DESIGN.md` rewritten as design rationale.** The migration plan, open questions, and v1 comparisons moved out to *Project history* below; what remains is goals, principles, architecture, and the reasoning behind each decision.
+- `docs/EXAMPLES.md` folded into `WORKFLOW.md` as *Worked scenarios*; run modes and troubleshooting moved from `WORKFLOW.md` to `GETTING-STARTED.md`.
+
+### Added
+- `LICENSE` — MIT. Previously declared in `README` and `plugin.json` with no license file present.
+
 ## [0.7.0] — 2026-07-26
 
 Context slimming per Anthropic's "[The new rules of context engineering for Claude 5 generation models](https://claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models)" (Thariq Shihipar, 2026-07-24). ~20% fewer words across agent/skill context with no process change: every gate, hook, tier, and artifact contract is intact.
@@ -39,3 +49,37 @@ Context slimming per Anthropic's "[The new rules of context engineering for Clau
 ## [0.2.x] — 2026-07 (pre-release)
 
 - Initial plugin packaging of the Architect → gates → Builder → Reviewer pipeline, ported from the `custom-agentic-tools` v1 capability.
+
+---
+
+# Project history
+
+How v2 was built, kept for the record. Nothing here is required to use the plugin — start at the [README](README.md).
+
+## Origin
+
+v2 supersedes the `agentic-workflow` capability in `custom-agentic-tools` (v1), a bundle of symlinked skills. The rebuild had two motives: package the pipeline as a real, versioned, distributable plugin, and cut the maintenance surface by deleting everything that duplicated an upstream owner. Design approved 2026-07-13.
+
+## Build-out (2026-07)
+
+| Milestone | Outcome |
+|---|---|
+| **M1 — port governance** | Keep-column artifacts copied from v1, then rewired for delegation: Builder → `superpowers:test-driven-development`; Reviewer split into spec-compliance + delegated `/code-review`; `cto-review` renamed to `approach-review` and repositioned as Gate A; the Step-0 context contract added to every stage. |
+| **M2 — package** | Manifest schema verified against live docs. `plugin.json` + `marketplace.json` (repo is its own marketplace, source `"."`); `claude plugin validate . --strict` passes; version pinned so updates ship on bumps, not commits. |
+| **M3 — smoke test** | Passed 2026-07-14, 20/20 checks, in a Go sandbox. Verified the context contract at every stage, fast-track inline brief + recorded waiver, Gate B lite mode with N/A perspective skipping, Approved-gate authorization, both Superpowers delegations, the Reviewer's direct `/code-review` invocation from a subagent, and a full SHIP IT report. |
+| **M4 — retire v1** | The `agentic-workflow` bundle removed from `custom-agentic-tools`, which keeps its unrelated capabilities. |
+
+## Course corrections worth recording
+
+- **Efficiency trims (2026-07-14).** A post-M1 heaviness review found ordinary features paying T3 ceremony. Three changes — T2 fast track as the default, Gate B lite/panel modes, and segment consent — cut an ordinary T2 from 6–7 round-trips and 5 audit subagents to 2–3 and 1, with the quality moat intact.
+- **Skills-dir symlink reversed (2026-07-24).** The chosen dev-phase install — the whole repo symlinked into `~/.claude/skills/` — was found *not* to register agents or commands, since a whole-repo symlink exposes only nested skills, double-nested and undiscovered. It never actually activated the pipeline. Corrected to a real plugin install plus `claude --plugin-dir` for the live dev loop.
+- **Superpowers dependency, reversed twice.** Originally a documented prerequisite checked at Step 0; then declared in the manifest `dependencies`; briefly removed as over-coupling; finally restored in v0.6.0 once cross-marketplace resolution worked, with the Step-0 check kept as a safety net.
+- **Model A over Model B (v0.5.0).** An unmerged v0.4.0 draft built a gated `/decompose` front stage producing one spec per task. Research across Spec Kit, Kiro, OpenSpec, Taskmaster, and BMAD found no tool uses that model; it was rejected in favor of spec-then-tasks with decomposition inside the Architect. Rationale in [docs/DESIGN.md §6.6](docs/DESIGN.md).
+
+## Resolved design questions
+
+- **Can the Reviewer invoke `/code-review` from a subagent?** Yes — confirmed at the M3 smoke test. The Reviewer calls it directly via the Skill tool; the `/review-internal` command wrapper remains as a fallback that runs the quality pass from the main session and combines verdicts.
+- **Approach Brief format** — adopted into `spec-format` with a `Tier:` line; Options Considered requires at least one real alternative with a real rejection reason. A brief with no alternatives is a RETHINK on arrival.
+- **Standalone `build-report` skill** — dropped. Folded into the Builder's output protocol as a compact Build Report whose AC → Test map feeds Reviewer Pass 1.
+- **`coding-standards` ownership** — carried into this repo verbatim; a self-contained plugin must ship what its agents preload. Future edits happen here.
+- **PRD stage** — was a reserved slot, implemented in v0.5.0 as the optional `requirements-composition` front stage (`/requirements`, EARS + `R#`).
