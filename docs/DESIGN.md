@@ -2,7 +2,7 @@
 
 > **You are here:** why the pipeline is built this way. · [README](../README.md) · [Getting started](GETTING-STARTED.md) · [Workflow guide](WORKFLOW.md)
 
-**Owner:** Amir Anckonina · **Current version:** 0.8.0 · Version-by-version history is in the [CHANGELOG](../CHANGELOG.md).
+**Owner:** Amir Anckonina · **Current version:** 0.9.0 · Version-by-version history is in the [CHANGELOG](../CHANGELOG.md).
 
 ---
 
@@ -46,8 +46,8 @@ flowchart TB
     subgraph OWN["OWNED — the governance layer"]
         direction TB
         AG["<b>agents/</b><br/>architect (opus) · builder (sonnet) · reviewer (sonnet)"]
-        SK["<b>skills/</b><br/>spec-format · approach-review · spec-review<br/>architect-methodology · decomposition<br/>requirements-composition · coding-standards"]
-        CM["<b>commands/</b><br/>/requirements · /review-internal"]
+        SK["<b>skills/</b><br/>spec-format · aa-approach-review · aa-spec-review<br/>aa-architect-methodology · decomposition<br/>aa-requirements-composition · coding-standards"]
+        CM["<b>commands/</b><br/>/aa-requirements · /aa-review-internal"]
         HK["<b>hooks</b> (inline in agent frontmatter)<br/>architect write-guard · builder spec-gate · builder git-guard"]
     end
 
@@ -70,12 +70,12 @@ flowchart TB
 | Concern | Owner | Mechanism |
 |---|---|---|
 | Spec format & lifecycle | **ours** | `spec-format` skill — the artifact contract |
-| Approach challenge (Gate A) | **ours** | `approach-review` skill |
-| Detail audits (Gate B) | **ours** | `spec-review` skill + 5 perspective checklists |
+| Approach challenge (Gate A) | **ours** | `aa-approach-review` skill |
+| Detail audits (Gate B) | **ours** | `aa-spec-review` skill + 5 perspective checklists |
 | Role agents & wiring | **ours** | `agents/architect.md`, `builder.md`, `reviewer.md` |
 | Approved-gate enforcement | **ours** | Builder Step-0 refusal + `PreToolUse` spec-gate hook |
 | Spec-compliance review | **ours** | Reviewer Pass 1 |
-| Architecture reasoning lenses | **ours** (curated) | `architect-methodology` skill |
+| Architecture reasoning lenses | **ours** (curated) | `aa-architect-methodology` skill |
 | Decomposition method | **ours** | `decomposition` skill (on-demand) |
 | Ideation / intent discovery | Superpowers | `brainstorming` |
 | TDD discipline | Superpowers | `test-driven-development` |
@@ -168,8 +168,8 @@ aa-agentic-workflow/
 │   ├── plugin.json          # manifest — version, dependencies (superpowers)
 │   └── marketplace.json     # the repo is its own marketplace ("aa")
 ├── agents/                  # architect · builder · reviewer (hooks inline in frontmatter)
-├── skills/                  # 7 skills; spec-review and requirements-composition carry references/
-├── commands/                # /requirements · /review-internal
+├── skills/                  # 7 skills; aa-spec-review and aa-requirements-composition carry references/
+├── commands/                # /aa-requirements · /aa-review-internal
 ├── docs/                    # GETTING-STARTED · WORKFLOW · DESIGN
 ├── CHANGELOG.md
 └── README.md
@@ -179,7 +179,7 @@ The repo is its own marketplace (`marketplace.json`, name `aa`, source `"."`), s
 
 ## 8. Future slots
 
-- **Brainstorm-as-artifact.** Partly addressed: `/requirements` rents `superpowers:brainstorming` and can structure an existing brainstorming doc into a Requirements doc. A standalone persisted intent-summary artifact remains unreserved.
+- **Brainstorm-as-artifact.** Partly addressed: `/aa-requirements` rents `superpowers:brainstorming` and can structure an existing brainstorming doc into a Requirements doc. A standalone persisted intent-summary artifact remains unreserved.
 - **Team-scale decomposition gate.** The research says a separate decomposition role and gate earns its keep at team scale. The `decomposition` skill is already a distinct on-demand module, so promoting it to a gated stage is an additive change, not a rewrite.
 
 ---

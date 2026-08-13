@@ -1,6 +1,6 @@
 ---
-name: requirements-composition
-description: "Optional front stage — compose raw needs into a structured Requirements doc: user stories + EARS-format acceptance criteria with R# IDs, success metrics, explicit out-of-scope. Use for 'compose requirements', 'write requirements', 'turn this idea into requirements', '/requirements'. Produces docs/requirements/<feature>.md (Draft → Approved). Standalone; feeds the Architect."
+name: aa-requirements-composition
+description: "Optional front stage — compose raw needs into a structured Requirements doc: user stories + EARS-format acceptance criteria with R# IDs, success metrics, explicit out-of-scope. Use for 'compose requirements', 'write requirements', 'turn this idea into requirements', '/aa-requirements'. Produces docs/requirements/<feature>.md (Draft → Approved). Standalone; feeds the Architect."
 user-invocable: true
 ---
 
@@ -14,7 +14,7 @@ This is the front of the pipeline and it is **optional and standalone**: run it 
 
 **Position (spec-driven / Model A):**
 ```
-raw need → /requirements → docs/requirements/<feature>.md [Approved]
+raw need → /aa-requirements → docs/requirements/<feature>.md [Approved]
                                       ↓
                     @architect  →  Brief (design) → decompose (if needed) → spec(s)
 ```
@@ -69,4 +69,4 @@ An `Approved` requirements doc is the input to **`@architect`**, which designs t
 
 - You already know the work → skip to `@architect` (features, system changes) or `@builder` (bounded tasks).
 - A chore or bounded task with obvious acceptance criteria → no requirements doc needed.
-- You want to challenge an *approach* → that's Gate A (`/approach-review`), later and lower.
+- You want to challenge an *approach* → that's Gate A (`/aa-approach-review`), later and lower.

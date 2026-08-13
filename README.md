@@ -6,7 +6,7 @@
 
 Agents don't write code until a spec exists, an independent reviewer has audited it, and you've said go.
 
-[![Version](https://img.shields.io/badge/version-0.8.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.0-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8A63D2)](https://docs.claude.com/en/docs/claude-code)
 [![Requires: Superpowers](https://img.shields.io/badge/requires-superpowers-orange)](https://github.com/obra/superpowers)
@@ -34,15 +34,15 @@ This plugin adds an **SDLC pipeline with enforced approval gates** to Claude Cod
 ```mermaid
 flowchart TD
     N["Raw need"] --> AR["<b>@architect</b><br/>designs the approach"]
-    R["<b>/requirements</b><br/>optional front stage"] -.->|"EARS criteria · R# IDs"| AR
+    R["<b>/aa-requirements</b><br/>optional front stage"] -.->|"EARS criteria · R# IDs"| AR
 
-    AR -->|"Approach Brief · ~1 page"| GA{"<b>Gate A</b><br/><b>/approach-review</b><br/>right way to build it?"}
+    AR -->|"Approach Brief · ~1 page"| GA{"<b>Gate A</b><br/><b>/aa-approach-review</b><br/>right way to build it?"}
     GA -->|RETHINK| AR
 
     GA -->|PASS| SP["Spec · docs/specs/"]
     AR -.->|"standard feature:<br/>inline brief · waiver recorded"| SP
 
-    SP --> GB{"<b>Gate B</b><br/><b>/spec-review</b><br/>safe to build from?"}
+    SP --> GB{"<b>Gate B</b><br/><b>/aa-spec-review</b><br/>safe to build from?"}
     GB -->|Blocking| SP
 
     GB -->|Approved| BD["<b>@builder</b><br/>TDD · refuses unapproved specs"]
@@ -82,7 +82,7 @@ The design principle is **own decisions, rent techniques**. This plugin owns the
 
 Both are review checkpoints run by **fresh-context reviewers** — they never inherit the Architect's reasoning, so they can't be argued into agreement. They differ in what they review and what failure costs.
 
-|  | **Gate A** — `/approach-review` | **Gate B** — `/spec-review` |
+|  | **Gate A** — `/aa-approach-review` | **Gate B** — `/aa-spec-review` |
 |---|---|---|
 | Reviews | the Approach Brief (~1 page) | the full spec, before any code |
 | Asks | *Is this the right way to build it?* | *Is this complete and safe to build from?* |
@@ -137,7 +137,7 @@ Full setup, verification, and a first end-to-end run: **[docs/GETTING-STARTED.md
   Wrote docs/specs/logs-rate-limit.md [Draft] — 7 acceptance criteria.
   Run Gate B?
 
-> /spec-review docs/specs/logs-rate-limit.md
+> /aa-spec-review docs/specs/logs-rate-limit.md
 
   Gate B mode: lite (feature) — 3 focused perspectives: Completeness, Scope, Security
   BLOCKING (Security): AC-4 leaks the remaining quota to unauthenticated
@@ -151,9 +151,9 @@ Gate B caught it **before a line of code existed**. The spec gets one revision, 
 
 ```
 agents/     architect (opus) · builder (sonnet) · reviewer (sonnet)
-skills/     spec-format · architect-methodology · decomposition · requirements-composition
-            approach-review (Gate A) · spec-review (Gate B) · coding-standards
-commands/   /requirements · /review-internal
+skills/     spec-format · aa-architect-methodology · decomposition · aa-requirements-composition
+            aa-approach-review (Gate A) · aa-spec-review (Gate B) · coding-standards
+commands/   /aa-requirements · /aa-review-internal
 docs/       GETTING-STARTED · WORKFLOW · DESIGN
 ```
 
@@ -174,7 +174,7 @@ Two structural guarantees are enforced by `PreToolUse` hooks rather than prompt 
 - **[Superpowers](https://github.com/obra/superpowers)** — required, installed automatically as a declared dependency
 - **`jq`** — powers the Architect write-guard and the Builder gate hooks (all fail open if absent)
 
-> **Namespacing:** plugin components are namespaced in real use — `/aa-agentic-workflow:spec-review`, `@aa-agentic-workflow:architect`. The docs use short names for readability.
+> **Namespacing:** every command and user-invocable skill is `aa-`-prefixed (`/aa-spec-review`, `/aa-requirements`, …) so it resolves without the full plugin prefix in normal use. Agents (`@architect`) and the fully-qualified form (`/aa-agentic-workflow:aa-spec-review`) still work and disambiguate if another installed plugin defines a colliding name.
 
 ## License
 

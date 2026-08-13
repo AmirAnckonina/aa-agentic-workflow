@@ -1,6 +1,6 @@
 ---
 name: spec-format
-description: "The pipeline's artifact contract: Requirements doc, Approach Brief, Task Map, and Spec formats, their lifecycle states and validation rules. Shared by requirements-composition (front stage), the Architect (produces brief/task-map/specs), the Builder (implements against), and the Reviewer (validates against)."
+description: "The pipeline's artifact contract: Requirements doc, Approach Brief, Task Map, and Spec formats, their lifecycle states and validation rules. Shared by aa-requirements-composition (front stage), the Architect (produces brief/task-map/specs), the Builder (implements against), and the Reviewer (validates against)."
 user-invocable: false
 ---
 
@@ -13,8 +13,8 @@ The pipeline produces two artifacts, at different altitudes, gated separately:
 
 | Artifact | Altitude | Location | Gate |
 |---|---|---|---|
-| **Approach Brief** (~1 page) | Is this the right way to build it? | `docs/briefs/<topic>.md` | `/approach-review` (Gate A) |
-| **Spec** (full contract) | Exactly what to build | `docs/specs/<topic>.md` | `/spec-review` (Gate B) |
+| **Approach Brief** (~1 page) | Is this the right way to build it? | `docs/briefs/<topic>.md` | `/aa-approach-review` (Gate A) |
+| **Spec** (full contract) | Exactly what to build | `docs/specs/<topic>.md` | `/aa-spec-review` (Gate B) |
 
 The brief is challenged **before** the spec is written — rework is cheap on one page, expensive on a full spec.
 
@@ -30,7 +30,7 @@ Spec:            Draft ──→ Detail Audit ──→ Approved
 
 **Gate A proportionality (quality preserved, ceremony scaled):**
 - **Standard feature (default):** the brief is presented *inline in chat* (chosen approach, ≥1 rejected alternative with a real reason, key risk) — no file, no gate run. The user's nod is the approval; the spec's `**Brief:**` line records `_Inline — Gate A waived: [reason]_`. The reasoning lenses still apply — only the ceremony is compressed.
-- **Open-design feature** (multiple viable approaches, new dependency, contract changes) **and every system change:** full brief artifact + `/approach-review`. **Gate A cannot be waived for a system change.**
+- **Open-design feature** (multiple viable approaches, new dependency, contract changes) **and every system change:** full brief artifact + `/aa-approach-review`. **Gate A cannot be waived for a system change.**
 - If a real design question surfaces after an inline brief, the Architect stops and promotes to the full brief + Gate A — no designing through it.
 
 **Gate B skips** (user's call, always recorded): all Review Notes rows set to `⏭️ Skipped`, Status advances to `Approved` directly (trivial changes only).
@@ -45,9 +45,9 @@ When a gate sends an artifact back to `Draft`, the Architect revises and the cyc
 
 ## Requirements & Task Map Artifacts (optional — bracket the brief/spec)
 
-Two more artifacts sit around the brief/spec. Both are optional — a known single task uses neither. `spec-format` owns their *format*; the *method* lives elsewhere (`requirements-composition` for requirements; the Architect's on-demand `decomposition` skill for the task map).
+Two more artifacts sit around the brief/spec. Both are optional — a known single task uses neither. `spec-format` owns their *format*; the *method* lives elsewhere (`aa-requirements-composition` for requirements; the Architect's on-demand `decomposition` skill for the task map).
 
-- **Requirements doc** — an optional **front stage** (`/requirements`), produced *before* any design: what/why in EARS with `R#` IDs.
+- **Requirements doc** — an optional **front stage** (`/aa-requirements`), produced *before* any design: what/why in EARS with `R#` IDs.
 - **Task Map** — produced by the **Architect**, *after* the brief, and **only when a feature is more than one spec** (spec-then-tasks — the design comes first, tasks derive from it). It is the Architect's ledger of the split specs. **Ungated below system scale** (reviewed inline; its lifecycle rides the brief's Gate A); an optional read-only coverage audit runs for system changes only.
 
 ### Requirements Doc Format
@@ -64,7 +64,7 @@ Location: `docs/requirements/<feature>.md`. Lifecycle: `Draft → Approved` — 
 
 ## Acceptance Criteria (EARS)
 <!-- Each criterion carries a stable R# ID and uses EARS syntax.
-     Templates: requirements-composition/references/ears.md -->
+     Templates: aa-requirements-composition/references/ears.md -->
 - **R1** — WHEN <trigger>, THE SYSTEM SHALL <response>.
 - **R2** — WHILE <precondition>, THE SYSTEM SHALL <response>.
 - **R3** — IF <unwanted trigger>, THEN THE SYSTEM SHALL <response>.
@@ -138,7 +138,7 @@ _Not audited (task/feature) | Not audited yet (system change)_
 [What breaks if this fails; other systems/teams affected]
 
 ## Approach Review
-<!-- Populated by /approach-review. Do not edit manually. -->
+<!-- Populated by /aa-approach-review. Do not edit manually. -->
 _Not reviewed yet_
 ```
 
@@ -198,7 +198,7 @@ Do NOT include implementation code — just what and where.]
 [Performance targets, compatibility, dependencies]
 
 ## Review Notes
-<!-- Populated by /spec-review (detail audits). Do not edit manually. -->
+<!-- Populated by /aa-spec-review (detail audits). Do not edit manually. -->
 | Perspective  | Status     | Issues |
 |---|---|---|
 | Security     | ⬜ Pending | —      |
@@ -259,8 +259,8 @@ The spec defines **what** and **why**. The Builder decides **how**. Do NOT inclu
 ## How Each Agent Uses This
 
 - **Architect:** Produces the brief first (feature and system paths); after `Approach-Approved` (or a recorded skip), produces the spec following this format exactly. All section headings required (`N/A — reason` allowed per the escape hatch above). Writes function signatures and type definitions — never function bodies. When finishing the spec, asks the user which reviews to run before advancing status.
-- **Approach Review (`/approach-review`, Gate A):** Reads the brief. Writes challenge rounds into the brief's `## Approach Review` section. Sets brief Status: `Approach Review` while active → `Approach-Approved` on PASS, `Draft` on RETHINK.
-- **Detail Audit (`/spec-review`, Gate B):** Verifies the linked brief is `Approach-Approved` (or the skip is recorded). Reads the full spec + brief. Fills the `## Review Notes` table per perspective. Updates spec `Status` to `Detail Audit` while active, back to `Draft` if blocking issues, or to `Approved` if all pass.
+- **Approach Review (`/aa-approach-review`, Gate A):** Reads the brief. Writes challenge rounds into the brief's `## Approach Review` section. Sets brief Status: `Approach Review` while active → `Approach-Approved` on PASS, `Draft` on RETHINK.
+- **Detail Audit (`/aa-spec-review`, Gate B):** Verifies the linked brief is `Approach-Approved` (or the skip is recorded). Reads the full spec + brief. Fills the `## Review Notes` table per perspective. Updates spec `Status` to `Detail Audit` while active, back to `Draft` if blocking issues, or to `Approved` if all pass.
 - **Builder:** First checks spec `Status` — if not `Approved`, stop and point to the gates. Then maps each section to implementation:
   - Acceptance Criteria → test cases (at least one per criterion)
   - Interfaces → exact implementation (no renaming, no reordering)

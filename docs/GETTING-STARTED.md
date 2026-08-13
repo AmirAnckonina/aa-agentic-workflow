@@ -35,8 +35,8 @@ Agents, commands, and skills register on the **next** session — start a fresh 
 In a new session, confirm all three surfaces are live:
 
 1. Type `@` — `architect`, `builder`, and `reviewer` should appear in the agent list.
-2. Type `/` — `/requirements` and `/review-internal` should appear among the commands.
-3. Ask directly: *"which agentic-workflow skills are available?"* — you should see `spec-format`, `approach-review`, `spec-review`, and the rest.
+2. Type `/` — `/aa-requirements` and `/aa-review-internal` should appear among the commands.
+3. Ask directly: *"which agentic-workflow skills are available?"* — you should see `spec-format`, `aa-approach-review`, `aa-spec-review`, and the rest.
 
 If agents are missing but skills are present, the plugin didn't fully register — see [Troubleshooting](#troubleshooting).
 
@@ -106,7 +106,7 @@ Your nod approves it. The waiver is **recorded** in the spec's `Brief:` line —
 ### Step 2 — Gate B
 
 ```text
-/spec-review docs/specs/logs-rate-limit.md
+/aa-spec-review docs/specs/logs-rate-limit.md
 ```
 
 One fresh-context auditor runs the perspectives this spec's surface triggers. **Approved** flips the status; **Blocking** returns it to `Draft` with specific findings. Nothing is built until it passes.
@@ -130,7 +130,7 @@ The Builder can't do this — `git-guard` blocks it — so commit yourself or as
 ### Step 5 — review
 
 ```text
-/review-internal
+/aa-review-internal
 ```
 
 **Pass 1** is a mechanical per-AC compliance table of the code against the Approved spec. **Pass 2** delegates to `/code-review`, adding `/security-review` when the diff touches auth, input handling, or secrets. Verdict: **SHIP IT**, **NEEDS WORK**, or **BLOCKER**.
@@ -153,7 +153,7 @@ Every agent stage can be driven three ways:
 | **Subagent** | `@architect …` inside any session | One-shot — the agent ends its turn at a gate with the question as its result; your next message continues it | Running one stage inside a larger conversation |
 | **Headless** | `claude --agent builder -p "…"` | None — stops at gates and prints the pending question | Automation, bounded builds, smoke tests |
 
-Two things hold across all three: **gate skills always run in the main session** (`/approach-review`, `/spec-review`, `/review-internal` are slash commands wherever you are, never subagents), and headless runs need scoped permissions:
+Two things hold across all three: **gate skills always run in the main session** (`/aa-approach-review`, `/aa-spec-review`, `/aa-review-internal` are slash commands wherever you are, never subagents), and headless runs need scoped permissions:
 
 ```bash
 claude --agent builder -p "Implement docs/specs/x.md" --permission-mode acceptEdits --allowedTools "Bash(go:*)" "Skill" "Read" "Glob" "Grep"
@@ -177,7 +177,7 @@ Also by design — `git-guard` blocks commit, push, merge, rebase, reset, and `c
 The work isn't committed. Create a feature branch and commit — otherwise the Reviewer falls back to reviewing the working tree and will tell you it did.
 
 **Gate B stops and points at Gate A.**
-The spec links a brief that isn't `Approach-Approved`. Either run `/approach-review` on that brief, or — if the work genuinely didn't need it — have the Architect record the waiver in the `Brief:` line. On a system change this is not negotiable: a system-change spec without an approved brief is itself a blocking finding.
+The spec links a brief that isn't `Approach-Approved`. Either run `/aa-approach-review` on that brief, or — if the work genuinely didn't need it — have the Architect record the waiver in the `Brief:` line. On a system change this is not negotiable: a system-change spec without an approved brief is itself a blocking finding.
 
 **Everything feels too heavy for the change you're making.**
 It's probably not feature-sized. A typo or config tweak is a chore — just ask in direct chat. A bounded change under three files with clear criteria is a task — hand it straight to `@builder` with inline acceptance criteria, no spec and no gates. Over-weighing small work is the most common self-inflicted cost.

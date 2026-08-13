@@ -19,7 +19,7 @@ Work arrives at any maturity — a paragraph, a ticket, a half-decided design, a
 ```mermaid
 flowchart TD
     S["Work arrives — at any maturity"] --> Q0{"is the need itself<br/>still fuzzy?"}
-    Q0 -->|Yes| RQ["<b>/requirements</b><br/>pin down the what/why first"]
+    Q0 -->|Yes| RQ["<b>/aa-requirements</b><br/>pin down the what/why first"]
     RQ --> Q1
     Q0 -->|No| Q1{"does behavior<br/>change?"}
     Q1 -->|No| C["<b>Chore</b><br/>direct chat · no pipeline"]
@@ -58,9 +58,9 @@ Everything else is an **escalation the pipeline surfaces — never a knob you pr
 | # | Stage | Who | Produces | Gate |
 |---|---|---|---|---|
 | 1 | Discovery | `superpowers:brainstorming` | nothing — chat only | — |
-| 2 | Approach Brief | `@architect` | inline in chat (feature) · `docs/briefs/<t>.md` (system, open-design) | **Gate A** on file briefs — `/approach-review` |
+| 2 | Approach Brief | `@architect` | inline in chat (feature) · `docs/briefs/<t>.md` (system, open-design) | **Gate A** on file briefs — `/aa-approach-review` |
 | 2.5 | Decompose | `@architect` | `docs/plan/<t>-taskmap.md`, only if multi-spec | ungated below system scale |
-| 3 | Full spec | `@architect` | `docs/specs/<t>.md` [Draft] | **Gate B** — `/spec-review` |
+| 3 | Full spec | `@architect` | `docs/specs/<t>.md` [Draft] | **Gate B** — `/aa-spec-review` |
 | 4 | Build | `@builder` | code + tests + Build Report | refuses unless `Status: Approved` |
 | 5 | Review | you commit, then `@reviewer` | Pass 1 spec compliance · Pass 2 `/code-review` | SHIP IT / NEEDS WORK / BLOCKER |
 | 6 | Ship (on request) | `superpowers:finishing-a-development-branch` + `gh-ops`/`glab-ops` | branch merged | — |
@@ -85,7 +85,7 @@ sequenceDiagram
     A->>A: write docs/specs/x.md [Draft]
     A-->>You: run Gate B?
 
-    You->>G: /spec-review docs/specs/x.md
+    You->>G: /aa-spec-review docs/specs/x.md
     Note over G: fresh context —<br/>never sees the Architect's reasoning
     G-->>You: Approved → spec Status flips
 
@@ -94,7 +94,7 @@ sequenceDiagram
     B-->>You: Build Report + AC → Test map
 
     You->>You: commit to a feature branch
-    You->>R: /review-internal
+    You->>R: /aa-review-internal
     R->>R: Pass 1 — spec compliance
     R->>R: Pass 2 — /code-review
     R-->>You: SHIP IT | NEEDS WORK | BLOCKER
@@ -113,7 +113,7 @@ stateDiagram-v2
     direction LR
     [*] --> BriefDraft: @architect writes brief
     BriefDraft: Brief — Draft
-    BriefDraft --> ApproachReview: /approach-review
+    BriefDraft --> ApproachReview: /aa-approach-review
     ApproachReview: Brief — Approach Review
     ApproachReview --> BriefDraft: RETHINK
     ApproachReview --> BriefApproved: PASS
@@ -122,7 +122,7 @@ stateDiagram-v2
     BriefApproved --> SpecDraft
     [*] --> SpecDraft: fast track — Gate A waived, recorded
     SpecDraft: Spec — Draft
-    SpecDraft --> DetailAudit: /spec-review
+    SpecDraft --> DetailAudit: /aa-spec-review
     DetailAudit: Spec — Detail Audit
     DetailAudit --> SpecDraft: Blocking findings
     DetailAudit --> SpecApproved: clean
@@ -148,11 +148,11 @@ Segment consent never bypasses a gate — it only pre-answers "go" on a pass, an
 | An ordinary feature (the default) | **Lite** — one **Opus** auditor, **focused** to the 2–3 perspectives that matter (Completeness + Scope always; Security / Scalability / API Design only if the surface triggers them) |
 | A system change, or a feature touching **auth, migration, external API, or an irreversible change** | **Panel** — 5 independent Opus auditors in parallel. A lite auditor auto-escalates here if it smells real risk. |
 
-Lite is cheaper by **breadth, not depth** — it keeps full Opus reasoning, because Gate B is the last check before code exists. Elsewhere the model tier does drop: mechanical stages (Reviewer, `/requirements`) run on Sonnet, design-critical ones (Architect, both gates) stay Opus.
+Lite is cheaper by **breadth, not depth** — it keeps full Opus reasoning, because Gate B is the last check before code exists. Elsewhere the model tier does drop: mechanical stages (Reviewer, `/aa-requirements`) run on Sonnet, design-critical ones (Architect, both gates) stay Opus.
 
 ## Front stage and decomposition
 
-Starting from fuzzy needs? Run `/requirements` first for a gated EARS requirements doc (`docs/requirements/<f>.md`, `R#` IDs). Already know the work? Skip it — the fast path pays nothing for this stage existing.
+Starting from fuzzy needs? Run `/aa-requirements` first for a gated EARS requirements doc (`docs/requirements/<f>.md`, `R#` IDs). Already know the work? Skip it — the fast path pays nothing for this stage existing.
 
 **Decomposition lives inside the Architect.** You do **not** split work up front. Hand a feature over; it designs the brief, then decides **one spec or many**. Most features are one spec.
 
@@ -212,7 +212,7 @@ Acceptance criteria:
 ```
 
 → Architect runs Discovery + Research, writes `docs/briefs/order-outbox.md` [Draft].
-→ `/approach-review docs/briefs/order-outbox.md` — Gate A, **mandatory for system changes** → PASS.
+→ `/aa-approach-review docs/briefs/order-outbox.md` — Gate A, **mandatory for system changes** → PASS.
 → Architect decides *"this decomposes into 3 specs"* → writes `docs/plan/order-outbox-taskmap.md` and offers the coverage audit.
 → writes the first spec → Gate B **panel** → build → review → you pick the next task.
 
@@ -240,7 +240,7 @@ trigger and poll it, and a download endpoint.
 The need is a paragraph, not crisp criteria yet.
 
 ```text
-/requirements Users keep losing unsaved work; we want autosave + recovery.
+/aa-requirements Users keep losing unsaved work; we want autosave + recovery.
 ```
 
 → Interview via `superpowers:brainstorming` → `docs/requirements/autosave.md` with EARS `R#` criteria. You resolve the `[NEEDS CLARIFICATION]` markers, approve → `Status: Approved`.
@@ -267,14 +267,14 @@ The need is a paragraph, not crisp criteria yet.
 
 | I want to… | Do |
 |---|---|
-| Turn a raw need into structured requirements | `/requirements` |
+| Turn a raw need into structured requirements | `/aa-requirements` |
 | Design a feature (the Architect splits it if needed) | `@architect` (or `claude --agent architect`) |
-| Challenge an approach | `/approach-review` on the brief |
-| Audit a spec | `/spec-review` on the spec |
+| Challenge an approach | `/aa-approach-review` on the brief |
+| Audit a spec | `/aa-spec-review` on the spec |
 | Implement an Approved spec | `@builder` |
 | Small bounded task, no spec | `@builder` with the task + inline ACs |
-| Review the branch | `/review-internal [focus]` |
-| Ask an advisory design question | just ask — `architect-methodology` handles it in chat |
+| Review the branch | `/aa-review-internal [focus]` |
+| Ask an advisory design question | just ask — `aa-architect-methodology` handles it in chat |
 
 ### Complementary tools (outside the pipeline)
 

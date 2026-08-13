@@ -1,5 +1,5 @@
 ---
-name: architect-methodology
+name: aa-architect-methodology
 description: "Use when evaluating a design or architecture decision — 'best approach', 'should I use X or Y', 'how should I structure', trade-off analysis, ADRs — or when writing a spec. Provides 5 reasoning lenses, a research protocol, and a gatekeeper checklist. Preloaded by the Architect agent; works standalone in direct chat (Advisory Mode)."
 user-invocable: true
 ---
@@ -25,11 +25,11 @@ This skill defines **how to reason about design decisions**. It provides lenses 
 ```
 Architect (Approach Brief, Draft)
     ↓
-/approach-review [Gate A: strategic challenge on 1 page — PASS or RETHINK → revise brief]
+/aa-approach-review [Gate A: strategic challenge on 1 page — PASS or RETHINK → revise brief]
     ↓
 Architect (Full Spec, Draft — links the Approach-Approved brief)
     ↓
-/spec-review [Gate B: parallel detail audits — Approved or Blocking → revise spec]
+/aa-spec-review [Gate B: parallel detail audits — Approved or Blocking → revise spec]
     ↓
 Builder (implements against Approved spec)
     ↓

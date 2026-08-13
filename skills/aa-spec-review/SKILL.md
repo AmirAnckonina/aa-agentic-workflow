@@ -1,10 +1,10 @@
 ---
-name: spec-review
+name: aa-spec-review
 description: >
   Use when a spec needs its detail audits before the Builder starts — "spec review",
   "detail audit", "audit the spec", "run detail audits". Gate B of the pipeline:
   up to 5 independent perspectives (Security, Scalability, API Design, Completeness,
-  Scope). Runs after /approach-review passes or is skipped.
+  Scope). Runs after /aa-approach-review passes or is skipped.
 user-invocable: true
 ---
 
@@ -18,7 +18,7 @@ completeness gaps, and scope issues.
 
 **Position in the pipeline:**
 ```
-Architect (Brief) → /approach-review (Gate A) → Architect (Spec, Draft) → /spec-review (Gate B) → Builder
+Architect (Brief) → /aa-approach-review (Gate A) → Architect (Spec, Draft) → /aa-spec-review (Gate B) → Builder
                                                         ↑                        ↓
                                                         └──── ❌ Blocking ───────┘
 ```
@@ -42,7 +42,7 @@ Before reviewing, gather context:
 1. Read `docs/agentic-context.md` in the target repo if present; read every file it lists (related repos read-only). Fallback: repo `CLAUDE.md` + a `docs/` scan — and say so. **Begin your output with a `Context loaded: <list>` line.**
 2. Read the spec file in full — do not skim
 3. **Check the spec's `**Brief:**` line:**
-   - Links a brief → read the brief in full and verify its Status is `Approach-Approved`. If it isn't, STOP: Gate A is not done — point the user to `/approach-review`.
+   - Links a brief → read the brief in full and verify its Status is `Approach-Approved`. If it isn't, STOP: Gate A is not done — point the user to `/aa-approach-review`.
    - `_Inline — Gate A waived: [reason]_` (or legacy `_None — Gate A skipped: [reason]_`) → proceed; the waiver is recorded. (A system-change spec without an Approach-Approved brief is itself a **blocking finding** — Gate A is mandatory for system changes.)
 4. Check `**Status:**` — should be `Draft` or `Detail Audit`. Then set it to `Detail Audit` — the status field must reflect where the pipeline actually is while you work.
 5. If Status is `Approved`, ask before re-reviewing
@@ -196,7 +196,7 @@ Mode: lite (feature) | panel (system / escalated) · Perspectives run: [list] ·
 
 ### Next Step
 [If approved]: Status → Approved. Builder may start (on your go).
-[If blocking]: Status → Draft. Architect to revise. Re-run /spec-review after revision.
+[If blocking]: Status → Draft. Architect to revise. Re-run /aa-spec-review after revision.
 ```
 
 ### Update the Spec File
@@ -237,8 +237,8 @@ When the Architect revises after blocking issues and asks for re-review:
 
 ## When NOT to Use This Skill
 
-- You want a strategic/approach challenge → use `/approach-review` (on the brief, before the spec exists)
+- You want a strategic/approach challenge → use `/aa-approach-review` (on the brief, before the spec exists)
 - Reviewing code (not specs) → use the Reviewer agent
-- Advisory architecture questions → use `architect-methodology`
+- Advisory architecture questions → use `aa-architect-methodology`
 - The spec Status is already `Approved` and nothing has changed
 - Reviewing a design doc that is not a formal spec (no ACs, no Interfaces)

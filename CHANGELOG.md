@@ -2,6 +2,16 @@
 
 All notable changes to `aa-agentic-workflow`. Format loosely follows [Keep a Changelog](https://keepachangelog.com/); versions track `plugin.json`.
 
+## [0.9.0] — 2026-08-13
+
+**`aa-` command namespacing** — every command and user-invocable skill is now `aa-`-prefixed, so it resolves as `/aa-<name>` without needing the full `aa-agentic-workflow:` plugin prefix.
+
+### Changed
+- Renamed commands: `/requirements` → `/aa-requirements`, `/review-internal` → `/aa-review-internal`.
+- Renamed user-invocable skills: `approach-review` → `aa-approach-review`, `spec-review` → `aa-spec-review`, `requirements-composition` → `aa-requirements-composition`, `architect-methodology` → `aa-architect-methodology`.
+- Internal-only skills (`spec-format`, `decomposition`, `coding-standards`) are unchanged — they're never user-typed.
+- All cross-references updated across agents, docs, and skill files.
+
 ## [0.8.0] — 2026-08-13
 
 Routing reframed around **maturity + risk** instead of size tiers — the tier codes `T0–T3` are gone from every user-facing surface — and the documentation restructured for external readers. No gate, hook, or artifact-lifecycle behavior changed.
